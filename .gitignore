@@ -9,6 +9,7 @@ frontend/.cache/
 frontend/karma.conf.js
 frontend/.nyc_output/
 frontend/coverage/
+frontend/.vscode/
 
 # Backend (FastAPI / Python) related
 backend/.venv/

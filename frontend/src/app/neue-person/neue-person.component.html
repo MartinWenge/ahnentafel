@@ -1,0 +1,78 @@
+<h2>Neue Person erstellen</h2>
+<form [formGroup]="personForm" (ngSubmit)="onSubmit()">
+    <div>
+        <label for="vorname">Vorname *:</label>
+        <input type="text" id="vorname" formControlName="vorname" required>
+        <div
+            *ngIf="personForm.controls['vorname'].invalid && (personForm.controls['vorname'].dirty || personForm.controls['vorname'].touched)">
+            <div *ngIf="personForm.controls['vorname'].errors?.['required']">Vorname ist erforderlich.</div>
+        </div>
+    </div>
+
+    <div>
+        <label for="nachname">Nachname *:</label>
+        <input type="text" id="nachname" formControlName="nachname" required>
+        <div
+            *ngIf="personForm.controls['nachname'].invalid && (personForm.controls['nachname'].dirty || personForm.controls['nachname'].touched)">
+            <div *ngIf="personForm.controls['nachname'].errors?.['required']">Nachname ist erforderlich.</div>
+        </div>
+    </div>
+
+    <div>
+        <label for="geburtstag">Geburtstag *:</label>
+        <input type="date" id="geburtstag" formControlName="geburtstag" required>
+        <div
+            *ngIf="personForm.controls['geburtstag'].invalid && (personForm.controls['geburtstag'].dirty || personForm.controls['geburtstag'].touched)">
+            <div *ngIf="personForm.controls['geburtstag'].errors?.['required']">Geburtstag ist erforderlich.</div>
+        </div>
+    </div>
+
+    <div>
+        <label for="geburtsort">Geburtsort:</label>
+        <input type="text" id="geburtsort" formControlName="geburtsort">
+    </div>
+
+    <div>
+        <label for="todestag">Todestag:</label>
+        <input type="date" id="todestag" formControlName="todestag">
+    </div>
+
+    <div>
+        <label for="todesort">Todesort:</label>
+        <input type="text" id="todesort" formControlName="todesort">
+    </div>
+
+    <div>
+        <label for="beruf">Beruf:</label>
+        <input type="text" id="beruf" formControlName="beruf">
+    </div>
+
+
+    <div>
+        <label for="verbindung">Verbindung zu Person:</label>
+        <input type="text" id="verbindung" formControlName="verbindung" (input)="onInputChange($event)"
+            [value]="personForm.controls['verbindung'].value">
+        <ul *ngIf="suchErgebnisse.length > 0">
+            <li *ngFor="let person of suchErgebnisse" (click)="selectPerson(person)">
+                {{ person.vorname }} {{ person.nachname }}
+            </li>
+        </ul>
+        <button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung entfernen</button>
+    </div>
+
+    <button type="submit" [disabled]="personForm.invalid">Speichern</button>
+</form>
+
+<ul>
+    <li *ngFor="let person of allePersonen">
+        {{ person.nachname }}, {{ person.vorname }} ({{ person.geburtstag | date: 'dd.MM.yyyy' }})
+    </li>
+</ul>
+
+<div *ngIf="erfolgsmeldung">
+    {{ erfolgsmeldung }}
+</div>
+
+<div *ngIf="fehlermeldung">
+    {{ fehlermeldung }}
+</div>
