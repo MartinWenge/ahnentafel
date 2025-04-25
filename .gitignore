@@ -1,0 +1,32 @@
+# Node.js and Angular related
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/.angular/
+frontend/.cache/
+frontend/karma.conf.js
+frontend/.nyc_output/
+frontend/coverage/
+
+# Backend (FastAPI / Python) related
+backend/.venv/
+backend/__pycache__/
+backend/*.pyc
+backend/*.egg-info/
+backend/.pytest_cache/
+backend/instance/
+backend/logs/
+backend/data/  # Falls du lokale Datendateien speicherst, die nicht ins Repo sollen
+backend/.env
+backend/.env.*
+backend/.coverage
+backend/htmlcov/
+backend/.mypy_cache/
+
+# Neo4j related
+neo4j/data/  # Die eigentlichen Datenbankdateien (NICHT ins Repo!)
+neo4j/logs/
+neo4j/conf/neo4j.conf  # Konfigurationsdatei (kann je nach Bedarf ins Repo)
+neo4j/.snapshots/

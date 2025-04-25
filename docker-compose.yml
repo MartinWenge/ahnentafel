@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  neo4j:
+    build: ./neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    environment:
+      NEO4J_AUTH: neo4j/AnkerDinoSchiff # Stelle sicher, dass dies mit dem Dockerfile übereinstimmt
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: AnkerDinoSchiff # Stelle sicher, dass dies mit der Python-Datei übereinstimmt
+    depends_on:
+      - neo4j
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  neo4j_data:
