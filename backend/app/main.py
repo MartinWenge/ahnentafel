@@ -14,7 +14,8 @@ driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 origins = [
     "http://localhost:55506",  # Typische Angular Entwicklungsumgebung
-    "http://backend:8000"
+    "http://localhost:4200",
+    "static.255.83.99.91.clients.your-server.de:4200", # hetzner server
 ]
 
 app.add_middleware(
