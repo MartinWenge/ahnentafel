@@ -3,18 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { ApiConfigService } from '../api-config.service';
+import { PersonenlisteBereitstellenService } from '../personenliste-bereitstellen.service';
 import { debounceTime, distinctUntilChanged, takeUntil, map } from 'rxjs/operators';
-
-interface Person {
-  id?: number;
-  vorname: string;
-  nachname: string;
-  geburtstag: Date;
-  geburtsort?: string;
-  todestag?: Date;
-  todesort?: string;
-  beruf?: string;
-}
+import { Person } from '../models/person';
 
 @Component({
   selector: 'app-neue-person',
@@ -24,17 +15,16 @@ interface Person {
 })
 export class NeuePersonComponent implements OnInit, OnDestroy {
   personForm: FormGroup;
-  suchText$ = new Subject<string>(); // Verwenden Subject für manuelle Steuerung
+  suchText$ = new Subject<string>();
   allePersonen: Person[] = [];
   suchErgebnisse: Person[] = [];
   verbundenePerson: Person | null = null;
   erfolgsmeldung: string = '';
   fehlermeldung: string = '';
-  private apiUrlGetPersonen = 'api/personen';
   private apiUrlPostNeuePerson = 'api/neueperson';
-  private destroy$ = new Subject<void>(); // Zum Unsubscriben von Observables
+  private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private personenBereitstellen: PersonenlisteBereitstellenService) {
     this.personForm = this.fb.group({
       vorname: ['', Validators.required],
       nachname: ['', Validators.required],
@@ -43,17 +33,17 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
       todestag: [''],
       todesort: [''],
       beruf: [''],
-      verbindung: [''], // Verwenden für die Anzeige des Namens der verbundenen Person
+      verbindung: [''],
       verbindungId: [null]
     });
   }
 
   ngOnInit(): void {
-    this.http.get<Person[]>(this.apiConfig.apiUrl + this.apiUrlGetPersonen)
+    this.personenBereitstellen.getAllePersonen()
       .pipe(takeUntil(this.destroy$))
       .subscribe(personen => {
         this.allePersonen = personen;
-        this.setupSuche(); // Suche erst einrichten, wenn die Daten geladen sind
+        this.setupSuche();
       });
   }
 
@@ -103,12 +93,15 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.personForm.valid) {
       const neuePerson = { ...this.personForm.value };
+      /*
       if (this.verbundenePerson) {
         neuePerson.verbindungId = this.verbundenePerson.id;
       } else {
         delete neuePerson.verbindungId;
       }
+      */
       delete neuePerson.verbindung; // Das Anzeigefeld für die Verbindung muss nicht mitgesendet werden
+      delete neuePerson.verbindungId; // wird erstmal nicht vom backend verarbeitet
 
       this.http.post<Person>(this.apiConfig.apiUrl + this.apiUrlPostNeuePerson, neuePerson)
         .pipe(takeUntil(this.destroy$))

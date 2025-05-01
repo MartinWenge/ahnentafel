@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NeuePersonComponent } from './neue-person.component';
+import { NeueVerbindungComponent } from './neue-verbindung.component';
+import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ApiConfigService } from '../api-config.service';
 import {MatInputModule} from '@angular/material/input';
@@ -9,20 +10,21 @@ import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   declarations: [
-    NeuePersonComponent
+    NeueVerbindungComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    HttpClientModule,
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule
   ],
   exports: [
-    NeuePersonComponent
+    NeueVerbindungComponent
   ],
   providers: [
     ApiConfigService
   ]
 })
-export class NeuePersonModule { }
+export class NeueVerbindungModule { }

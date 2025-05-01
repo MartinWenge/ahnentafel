@@ -1,67 +1,96 @@
-<h2>Neue Person erstellen</h2>
-<form [formGroup]="personForm" (ngSubmit)="onSubmit()">
-    <div>
-        <label for="vorname">Vorname *:</label>
-        <input type="text" id="vorname" formControlName="vorname" required>
-        <div
-            *ngIf="personForm.controls['vorname'].invalid && (personForm.controls['vorname'].dirty || personForm.controls['vorname'].touched)">
-            <div *ngIf="personForm.controls['vorname'].errors?.['required']">Vorname ist erforderlich.</div>
+<h2>Neue Person anlegen</h2>
+<div class="form-container">
+    <form [formGroup]="personForm" (ngSubmit)="onSubmit()">
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Vorname</mat-label>
+                <input matInput type="text" id="vorname" formControlName="vorname" required>
+            </mat-form-field>
+            @if(personForm.controls['vorname'].hasError('required') && (personForm.controls['vorname'].dirty ||
+            personForm.controls['vorname'].touched)){
+            <mat-error>Vorname ist erforderlich!</mat-error>
+            }
         </div>
-    </div>
 
-    <div>
-        <label for="nachname">Nachname *:</label>
-        <input type="text" id="nachname" formControlName="nachname" required>
-        <div
-            *ngIf="personForm.controls['nachname'].invalid && (personForm.controls['nachname'].dirty || personForm.controls['nachname'].touched)">
-            <div *ngIf="personForm.controls['nachname'].errors?.['required']">Nachname ist erforderlich.</div>
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Nachname</mat-label>
+                <input matInput type="text" id="nachname" formControlName="nachname" required>
+            </mat-form-field>
+            @if(personForm.controls['nachname'].hasError('required') && (personForm.controls['nachname'].dirty ||
+            personForm.controls['nachname'].touched)){
+            <mat-error>Nachname ist erforderlich!</mat-error>
+            }
         </div>
-    </div>
 
-    <div>
-        <label for="geburtstag">Geburtstag *:</label>
-        <input type="date" id="geburtstag" formControlName="geburtstag" required>
-        <div
-            *ngIf="personForm.controls['geburtstag'].invalid && (personForm.controls['geburtstag'].dirty || personForm.controls['geburtstag'].touched)">
-            <div *ngIf="personForm.controls['geburtstag'].errors?.['required']">Geburtstag ist erforderlich.</div>
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Geburtstag</mat-label>
+                <input matInput type="date" id="geburtstag" formControlName="geburtstag" required>
+            </mat-form-field>
+            @if(personForm.controls['geburtstag'].hasError('required') && (personForm.controls['geburtstag'].dirty ||
+            personForm.controls['geburtstag'].touched)){
+            <mat-error>Geburtstag ist erforderlich!</mat-error>
+            }
         </div>
-    </div>
 
-    <div>
-        <label for="geburtsort">Geburtsort:</label>
-        <input type="text" id="geburtsort" formControlName="geburtsort">
-    </div>
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Geburtsort</mat-label>
+                <input matInput type="text" id="geburtsort" formControlName="geburtsort">
+            </mat-form-field>
+        </div>
 
-    <div>
-        <label for="todestag">Todestag:</label>
-        <input type="date" id="todestag" formControlName="todestag">
-    </div>
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Todestag</mat-label>
+                <input matInput type="date" id="todestag" formControlName="todestag">
+            </mat-form-field>
+        </div>
 
-    <div>
-        <label for="todesort">Todesort:</label>
-        <input type="text" id="todesort" formControlName="todesort">
-    </div>
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Todesort</mat-label>
+                <input matInput type="text" id="todesort" formControlName="todesort">
+            </mat-form-field>
+        </div>
 
-    <div>
-        <label for="beruf">Beruf:</label>
-        <input type="text" id="beruf" formControlName="beruf">
-    </div>
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Beruf</mat-label>
+                <input matInput type="text" id="beruf" formControlName="beruf">
+            </mat-form-field>
+        </div>
 
+        <div>
+            <mat-form-field class="input-full-width">
+                <mat-label>Verbundene Person</mat-label>
+                <input matInput type="text" id="verbindung" formControlName="verbindung" (input)="onInputChange($event)"
+                [value]="personForm.controls['verbindung'].value">
+            </mat-form-field>
+            <ul *ngIf="suchErgebnisse.length > 0">
+                <li *ngFor="let person of suchErgebnisse" (click)="selectPerson(person)">
+                    {{ person.vorname }} {{ person.nachname }}
+                </li>
+            </ul>
+            <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung entfernen</button>
+        </div>
 
-    <div>
-        <label for="verbindung">Verbindung zu Person:</label>
-        <input type="text" id="verbindung" formControlName="verbindung" (input)="onInputChange($event)"
-            [value]="personForm.controls['verbindung'].value">
-        <ul *ngIf="suchErgebnisse.length > 0">
-            <li *ngFor="let person of suchErgebnisse" (click)="selectPerson(person)">
-                {{ person.vorname }} {{ person.nachname }}
-            </li>
-        </ul>
-        <button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung entfernen</button>
-    </div>
+        <!--<div>
+            <label for="verbindung">Verbindung zu Person:</label>
+            <input type="text" id="verbindung" formControlName="verbindung" (input)="onInputChange($event)"
+                [value]="personForm.controls['verbindung'].value">
+            <ul *ngIf="suchErgebnisse.length > 0">
+                <li *ngFor="let person of suchErgebnisse" (click)="selectPerson(person)">
+                    {{ person.vorname }} {{ person.nachname }}
+                </li>
+            </ul>
+            <button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung entfernen</button>
+        </div>-->
 
-    <button type="submit" [disabled]="personForm.invalid">Speichern</button>
-</form>
+        <button mat-raised-button type="submit" [disabled]="personForm.invalid">Speichern</button>
+    </form>
+</div>
 
 <ul>
     <li *ngFor="let person of allePersonen">
