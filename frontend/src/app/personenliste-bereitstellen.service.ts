@@ -9,7 +9,7 @@ import { ApiConfigService } from './api-config.service';
 })
 export class PersonenlisteBereitstellenService {
 
-  private apiUrlGetPersonen = '/api/personen';
+  private apiUrlGetPersonen = 'api/personen/';
   private personenCache$: Observable<Person[]> | null = null;
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
