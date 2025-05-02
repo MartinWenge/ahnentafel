@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from neo4j import GraphDatabase
@@ -14,9 +14,10 @@ app = FastAPI()
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 origins = [
-    "http://localhost:55506",  # Typische Angular Entwicklungsumgebung
-    "http://localhost:4200",
-    "http://static.255.83.99.91.clients.your-server.de:4200", # hetzner server
+    "http://localhost:4200", # development env
+    "http://wengenmayr-ahnentafel.de:4200", # hetzner server angular port
+    "http://wengenmayr-ahnentafel.de:80", # hetzner server nginx http server
+    "https://wengenmayr-ahnentafel.de:443", # hetzner server nginx https server
 ]
 
 app.add_middleware(
@@ -50,47 +51,69 @@ def close_driver():
     if driver:
         driver.close()
 
+@app.get("/api/personen", response_model=List[PersonOut])
+async def alle_personen():
+    try:
+        with driver.session() as session:
+            query = "MATCH (p:person) RETURN id(p) AS id, p"
+            result = session.run(query)
+            persons = []
+            for record in result:
+                person_data = record["p"]
+                persons.append(PersonOut(
+                    id=record["id"],
+                    vorname=person_data.get("vorname"),
+                    nachname=person_data.get("nachname"),
+                    geburtstag=person_data.get("geburtstag"),
+                    geburtsort=person_data.get("geburtsort"),
+                    todestag=person_data.get("todestag") if len(person_data.get("todestag")) > 1 else None,
+                    todesort=person_data.get("todesort"),
+                    beruf=person_data.get("beruf")
+                ))
+            return persons
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
+
+@app.post("/api/neueperson")
+async def neue_person(person_in: PersonIn):
+    try:
+        with driver.session() as session:
+            query = """CREATE (p:Person {
+                vorname: $vorname,
+                nachname: $nachname,
+                geburtstag: date($geburtstag),
+                geburtsort: $geburtsort,
+                todestag: date($todestag),
+                todesort: $todesort,
+                beruf: $beruf }) RETURN p"""
+            result = session.run(query,
+                vorname=person_in.vorname,
+                nachname=person_in.nachname,
+                geburtstag=str(person_in.geburtstag),
+                geburtsort=person_in.geburtsort,
+                todestag=str(person_in.todestag) if person_in.todestag else None,
+                todesort=person_in.todesort,
+                beruf=person_in.beruf)
+
+            record = result.single()
+            if record:
+                created_person = dict(record["p"])
+                return {
+                    "message": 'Knoten {} {} erstellt'.format(
+                        created_person.get('vorname'),
+                        created_person.get('nachname')
+                    ),"status_code": 200}
+            else:
+                raise HTTPException(status_code=500, detail="Fehler beim Erstellen des Person-Knotens.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
+
 @app.get("/api/nodes")
 async def get_nodes():
     with driver.session() as session:
         result = session.run("MATCH (n) RETURN collect(n)")
         nodes = [record["collect(n)"] for record in result]
         return {"nodes": nodes}
-
-@app.post("/api/neueperson")
-async def create_person(person: PersonIn):
-    """
-    Erstellt eine neue Person, wenn die Pflichtfelder gesetzt sind.
-    """
-    # Hier kannst du auf die einzelnen Felder zugreifen:
-    # person.vorname, person.nachname, person.geburtstag, etc.
-
-    # Wenn die Validierung durch Pydantic erfolgreich ist, sind die Pflichtfelder gesetzt.
-    # Wir können hier später die Logik zum Speichern in Neo4j hinzufügen.
-    return {"message": "Daten sind gültig.", "status_code": 200}
-
-@app.get("/api/personen/", response_model=List[PersonOut])
-async def get_all_persons():
-    """
-    Gibt eine Liste aller Personen zurück. (Aktuell gemockt)
-    """
-    mock_persons = [
-        PersonOut(
-            id=1,
-            vorname="Max",
-            nachname="Mustermann",
-            geburtstag=date(1985, 7, 20),
-            beruf="Softwareentwickler"
-        ),
-        PersonOut(
-            id=2,
-            vorname="Erika",
-            nachname="Schmidt",
-            geburtstag=date(1992, 3, 15),
-            geburtsort="Berlin"
-        )
-    ]
-    return mock_persons
 
 @app.on_event("shutdown")
 def shutdown_event():
@@ -101,7 +124,4 @@ from fastapi.exceptions import RequestValidationError
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    return JSONResponse(
-        status_code=422,
-        content={"detail": exc.errors()},
-    )
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
