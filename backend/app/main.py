@@ -15,9 +15,8 @@ driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 origins = [
     "http://localhost:4200", # development env
-    "http://wengenmayr-ahnentafel.de:4200", # hetzner server angular port
-    "http://wengenmayr-ahnentafel.de:80", # hetzner server nginx http server
-    "https://wengenmayr-ahnentafel.de:443", # hetzner server nginx https server
+    "http://wengenmayr-ahnentafel.de", # hetzner server nginx http server
+    "https://wengenmayr-ahnentafel.de", # hetzner server nginx https server
 ]
 
 app.add_middleware(
