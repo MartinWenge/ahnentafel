@@ -28,19 +28,26 @@ app.add_middleware(
 )
 
 class PersonIn(BaseModel):
+    id: Optional[int] = Field(None, description="Id der Person in der Datenbank")
     vorname: str = Field(..., description="Vorname der Person")
     nachname: str = Field(..., description="Nachname der Person")
     geburtstag: date = Field(..., description="Geburtsdatum der Person im Format YYYY-MM-TT")
+    geschlecht: str = Field(..., description="Geschlecht (männlich:m, weiblich:w)")
+    geburtsname: Optional[str] = Field(None, description="Geburtsname, falls vorhanden (optional)")
     geburtsort: Optional[str] = Field(None, description="Geburtsort der Person (optional)")
     todestag: Optional[date] = Field(None, description="Todestag der Person im Format YYYY-MM-TT (optional)")
     todesort: Optional[str] = Field(None, description="Todesort der Person (optional)")
     beruf: Optional[str] = Field(None, description="Beruf der Person (optional)")
+    verbindungMit: int = Field(..., description="ID der zu verbindenden Person")
+    verbindungsart: str = Field(..., description="Verbindungstyp: KIND, ELTERNTEIL, EHEPARTNER")
 
 class PersonOut(BaseModel):
     id: int
     vorname: str
     nachname: str
     geburtstag: date
+    geschlecht: str
+    geburtsname: Optional[str] = None
     geburtsort: Optional[str] = None
     todestag: Optional[date] = None
     todesort: Optional[str] = None
@@ -63,6 +70,8 @@ async def alle_personen():
                     id=record["id"],
                     vorname=person_data.get("vorname"),
                     nachname=person_data.get("nachname"),
+                    geburtsname=person_data.get("geburtsname"),
+                    geschlecht=person_data.get("geschlecht"),
                     geburtstag=person_data.get("geburtstag"),
                     geburtsort=person_data.get("geburtsort"),
                     todestag=person_data.get("todestag") if len(person_data.get("todestag")) > 1 else None,
@@ -75,28 +84,48 @@ async def alle_personen():
 
 @app.post("/api/neueperson")
 async def neue_person(person_in: PersonIn):
+
+    relation1 = "rel_ehepartner" if (person_in.verbindungsart == "EHEPARTNER") else ( "rel_kind" if (person_in.verbindungsart == "KIND") else "rel_elternteil")
+    relation2 = "rel_ehepartner" if (person_in.verbindungsart == "EHEPARTNER") else ( "rel_elternteil" if (person_in.verbindungsart == "KIND") else "rel_kind")
+    
     try:
         with driver.session() as session:
-            query = """CREATE (p:Person {
+            query = """CREATE (neu:person {
                 vorname: $vorname,
                 nachname: $nachname,
+                geburtsname: $geburtsname,
+                geschlecht: $geschlecht,
                 geburtstag: date($geburtstag),
                 geburtsort: $geburtsort,
                 todestag: date($todestag),
                 todesort: $todesort,
-                beruf: $beruf }) RETURN p"""
+                beruf: $beruf })
+                
+                MATCH (bestand:person {
+                id:$IDVerknuepftePerson
+                })
+                CREATE (neu)-[:$relTyp1]->(bestand)
+                CREATE (bestand)-[:relTyp2]->(neu)
+                
+                RETURN p"""
             result = session.run(query,
                 vorname=person_in.vorname,
                 nachname=person_in.nachname,
+                geburtsname=person_in.geburtsname,
+                geschlecht=person_in.geschlecht,
                 geburtstag=str(person_in.geburtstag),
                 geburtsort=person_in.geburtsort,
                 todestag=str(person_in.todestag) if person_in.todestag else None,
                 todesort=person_in.todesort,
-                beruf=person_in.beruf)
+                beruf=person_in.beruf,
+                IDVerknuepftePerson=person_in.verbindungMit,
+                relTyp1=relation1,
+                relTyp2=relation2)
 
-            record = result.single()
-            if record:
-                created_person = dict(record["p"])
+            recordNode = result.single()
+
+            if recordNode:
+                created_person = dict(recordNode["neu"])
                 return {
                     "message": 'Knoten {} {} erstellt'.format(
                         created_person.get('vorname'),

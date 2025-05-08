@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { ApiConfigService } from '../api-config.service';
 import { PersonenlisteBereitstellenService } from '../personenliste-bereitstellen.service';
 import { debounceTime, distinctUntilChanged, takeUntil, map } from 'rxjs/operators';
-import { Person } from '../models/person';
+import { Person, PersonIn } from '../models/person';
 
 @Component({
   selector: 'app-neue-person',
@@ -28,13 +28,15 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
     this.personForm = this.fb.group({
       vorname: ['', Validators.required],
       nachname: ['', Validators.required],
+      geburtsname: [''],
+      geschlecht: ['', Validators.required],
       geburtstag: ['', Validators.required],
       geburtsort: [''],
       todestag: [''],
       todesort: [''],
       beruf: [''],
-      verbindung: [''],
-      verbindungId: [null]
+      verbindungMit: ['', Validators.required],
+      verbindungsart: ['', Validators.required]
     });
   }
 
@@ -92,16 +94,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.personForm.valid) {
-      const neuePerson = { ...this.personForm.value };
-      /*
-      if (this.verbundenePerson) {
-        neuePerson.verbindungId = this.verbundenePerson.id;
-      } else {
-        delete neuePerson.verbindungId;
-      }
-      */
-      delete neuePerson.verbindung; // Das Anzeigefeld für die Verbindung muss nicht mitgesendet werden
-      delete neuePerson.verbindungId; // wird erstmal nicht vom backend verarbeitet
+      const neuePerson:PersonIn = { ...this.personForm.value };
 
       this.http.post<Person>(this.apiConfig.apiUrl + this.apiUrlPostNeuePerson, neuePerson)
         .pipe(takeUntil(this.destroy$))

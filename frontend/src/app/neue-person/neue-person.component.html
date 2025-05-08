@@ -25,6 +25,24 @@
 
         <div>
             <mat-form-field class="input-full-width">
+                <mat-label>Geburtsname</mat-label>
+                <input matInput type="text" id="geburtsname" formControlName="geburtsname">
+            </mat-form-field>
+        </div>
+
+        <div>
+            <mat-radio-group aria-label="Geschlecht auswählen" formControlName="geschlecht">
+                <mat-radio-button value="m">männlich</mat-radio-button>
+                <mat-radio-button value="w">weiblich</mat-radio-button>
+            </mat-radio-group>
+            @if(personForm.controls['geschlecht'].hasError('required') && (personForm.controls['geschlecht'].dirty ||
+            personForm.controls['geschlecht'].touched)){
+            <mat-error>Geschlecht ist erforderlich!</mat-error>
+            }
+        </div>
+
+        <div>
+            <mat-form-field class="input-full-width">
                 <mat-label>Geburtstag</mat-label>
                 <input matInput type="date" id="geburtstag" formControlName="geburtstag" required>
             </mat-form-field>
@@ -63,40 +81,41 @@
         </div>
 
         <div>
+            Jede neue Person muss mit einer bestehenden Person verbunden sein:
             <mat-form-field class="input-full-width">
                 <mat-label>Verbundene Person</mat-label>
-                <input matInput type="text" id="verbindung" formControlName="verbindung" (input)="onInputChange($event)"
-                [value]="personForm.controls['verbindung'].value">
+                <input matInput type="text" id="verbindungMit" formControlName="verbindungMit" (input)="onInputChange($event)"
+                    [value]="personForm.controls['verbindung'].value">
             </mat-form-field>
+            @if(personForm.controls['verbindungMit'].hasError('required') && (personForm.controls['verbindungMit'].dirty ||
+            personForm.controls['verbindungMit'].touched)){
+            <mat-error>Verbundene Person ist erforderlich!</mat-error>
+            }
             <ul *ngIf="suchErgebnisse.length > 0">
                 <li *ngFor="let person of suchErgebnisse" (click)="selectPerson(person)">
                     {{ person.vorname }} {{ person.nachname }}
                 </li>
             </ul>
-            <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung entfernen</button>
+            <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung
+                entfernen</button>
         </div>
-
-        <!--<div>
-            <label for="verbindung">Verbindung zu Person:</label>
-            <input type="text" id="verbindung" formControlName="verbindung" (input)="onInputChange($event)"
-                [value]="personForm.controls['verbindung'].value">
-            <ul *ngIf="suchErgebnisse.length > 0">
-                <li *ngFor="let person of suchErgebnisse" (click)="selectPerson(person)">
-                    {{ person.vorname }} {{ person.nachname }}
-                </li>
-            </ul>
-            <button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung entfernen</button>
-        </div>-->
+        <div>
+            Neue Person ist
+            <mat-radio-group aria-label="Verbindungsart auswählen" formControlName="verbindungsart">
+                <mat-radio-button value="KIND">Neue Person ist <b>Kind</b> von verbundener Person</mat-radio-button>
+                <mat-radio-button value="ELTERNTEIL">Neue Person ist <b>Elternteil</b> von verbundener Person</mat-radio-button>
+                <mat-radio-button value="EHEPARTNER">Neue Person ist <b>Ehepartner</b> </mat-radio-button>
+            </mat-radio-group>
+            @if(personForm.controls['verbindungsart'].hasError('required') && (personForm.controls['verbindungsart'].dirty ||
+            personForm.controls['verbindungsart'].touched)){
+            <mat-error>Verbindungsart ist erforderlich!</mat-error>
+            }
+            von verbundener Person.
+        </div>
 
         <button mat-raised-button type="submit" [disabled]="personForm.invalid">Speichern</button>
     </form>
 </div>
-
-<ul>
-    <li *ngFor="let person of allePersonen">
-        {{ person.nachname }}, {{ person.vorname }} ({{ person.geburtstag | date: 'dd.MM.yyyy' }})
-    </li>
-</ul>
 
 <div *ngIf="erfolgsmeldung">
     {{ erfolgsmeldung }}
