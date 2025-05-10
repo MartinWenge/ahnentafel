@@ -11,7 +11,13 @@ export interface Person {
   beruf?: string;
 }
 
+export interface PersonConnection {
+  vorname: string;
+  nachname: string;
+  geburtstag: Date;
+}
+
 export interface PersonIn extends Person {
-  verbindungMit: number;
+  verbindungMit: PersonConnection;
   verbindungsart: string;
 }

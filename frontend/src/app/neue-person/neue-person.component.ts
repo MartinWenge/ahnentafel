@@ -35,7 +35,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
       todestag: [''],
       todesort: [''],
       beruf: [''],
-      verbindungMit: ['', Validators.required],
+      verbindungMit: [null, Validators.required],
       verbindungsart: ['', Validators.required]
     });
   }
@@ -55,7 +55,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
   }
 
   setupSuche(): void {
-    this.personForm.controls['verbindung'].valueChanges
+    this.personForm.controls['verbindungMit'].valueChanges
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
@@ -77,24 +77,36 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
   onInputChange(event: Event): void {
     if (event.target instanceof HTMLInputElement) {
       const inputValue = event.target.value;
-      (this.personForm.controls['verbindung'].valueChanges as any).next(inputValue);
+      this.personForm.controls['verbindungMit'].setValue(inputValue);
     }
   }
 
   selectPerson(person: Person): void {
     this.verbundenePerson = person;
-    this.personForm.patchValue({ verbindung: `${person.vorname} ${person.nachname}`, verbindungId: person.id });
+    this.personForm.patchValue({
+      verbindungMit: `${person.vorname} ${person.nachname}, ${new Date(person.geburtstag).toLocaleDateString()}`
+    });
     this.suchErgebnisse = [];
   }
 
   entferneVerbindung(): void {
     this.verbundenePerson = null;
-    this.personForm.patchValue({ verbindung: '', verbindungId: null });
+    this.personForm.patchValue({ verbindungMit: null });
   }
 
   onSubmit(): void {
     if (this.personForm.valid) {
-      const neuePerson:PersonIn = { ...this.personForm.value };
+      const formValue = this.personForm.value;
+      const neuePerson: PersonIn = {
+        ...formValue,
+        verbindungMit: this.verbundenePerson
+          ? {
+              vorname: this.verbundenePerson.vorname,
+              nachname: this.verbundenePerson.nachname,
+              geburtstag: this.verbundenePerson.geburtstag
+            }
+          : null
+      };
 
       this.http.post<Person>(this.apiConfig.apiUrl + this.apiUrlPostNeuePerson, neuePerson)
         .pipe(takeUntil(this.destroy$))
@@ -105,6 +117,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
             this.fehlermeldung = '';
             this.personForm.reset();
             this.verbundenePerson = null;
+            this.personenBereitstellen.invalidateCache;
           },
           error: (error) => {
             console.error('Fehler beim Erstellen der Person', error);

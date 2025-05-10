@@ -27,6 +27,11 @@ app.add_middleware(
     allow_headers=["*"],  # Erlaubt alle Header
 )
 
+class PersonConnection(BaseModel):
+    vorname: str = Field(..., description="Vorname der zu verbindenden Person")
+    nachname: str = Field(..., description="Nachname der zu verbindenden Person")
+    geburtstag: date = Field(..., description="Geburtsdatum der zu verbindenden Person im Format YYYY-MM-TT")
+
 class PersonIn(BaseModel):
     id: Optional[int] = Field(None, description="Id der Person in der Datenbank")
     vorname: str = Field(..., description="Vorname der Person")
@@ -38,7 +43,7 @@ class PersonIn(BaseModel):
     todestag: Optional[date] = Field(None, description="Todestag der Person im Format YYYY-MM-TT (optional)")
     todesort: Optional[str] = Field(None, description="Todesort der Person (optional)")
     beruf: Optional[str] = Field(None, description="Beruf der Person (optional)")
-    verbindungMit: int = Field(..., description="ID der zu verbindenden Person")
+    verbindungMit: PersonConnection = Field(..., description="Informationen zur verbundenen Person")
     verbindungsart: str = Field(..., description="Verbindungstyp: KIND, ELTERNTEIL, EHEPARTNER")
 
 class PersonOut(BaseModel):
@@ -84,10 +89,6 @@ async def alle_personen():
 
 @app.post("/api/neueperson")
 async def neue_person(person_in: PersonIn):
-
-    relation1 = "rel_ehepartner" if (person_in.verbindungsart == "EHEPARTNER") else ( "rel_kind" if (person_in.verbindungsart == "KIND") else "rel_elternteil")
-    relation2 = "rel_ehepartner" if (person_in.verbindungsart == "EHEPARTNER") else ( "rel_elternteil" if (person_in.verbindungsart == "KIND") else "rel_kind")
-    
     try:
         with driver.session() as session:
             query = """CREATE (neu:person {
@@ -95,19 +96,14 @@ async def neue_person(person_in: PersonIn):
                 nachname: $nachname,
                 geburtsname: $geburtsname,
                 geschlecht: $geschlecht,
-                geburtstag: date($geburtstag),
+                geburtstag: $geburtstag,
                 geburtsort: $geburtsort,
-                todestag: date($todestag),
+                todestag: $todestag,
                 todesort: $todesort,
                 beruf: $beruf })
-                
-                MATCH (bestand:person {
-                id:$IDVerknuepftePerson
-                })
-                CREATE (neu)-[:$relTyp1]->(bestand)
-                CREATE (bestand)-[:relTyp2]->(neu)
-                
-                RETURN p"""
+                RETURN (neu)
+                """
+            
             result = session.run(query,
                 vorname=person_in.vorname,
                 nachname=person_in.nachname,
@@ -117,22 +113,53 @@ async def neue_person(person_in: PersonIn):
                 geburtsort=person_in.geburtsort,
                 todestag=str(person_in.todestag) if person_in.todestag else None,
                 todesort=person_in.todesort,
-                beruf=person_in.beruf,
-                IDVerknuepftePerson=person_in.verbindungMit,
-                relTyp1=relation1,
-                relTyp2=relation2)
-
+                beruf=person_in.beruf)
+            
             recordNode = result.single()
 
             if recordNode:
                 created_person = dict(recordNode["neu"])
-                return {
-                    "message": 'Knoten {} {} erstellt'.format(
-                        created_person.get('vorname'),
-                        created_person.get('nachname')
-                    ),"status_code": 200}
+                relation1 = "rel_ehepartner" if (person_in.verbindungsart == "EHEPARTNER") else ( "rel_kind" if (person_in.verbindungsart == "KIND") else "rel_elternteil")
+                relation2 = "rel_ehepartner" if (person_in.verbindungsart == "EHEPARTNER") else ( "rel_elternteil" if (person_in.verbindungsart == "KIND") else "rel_kind")
+
+                query = f"""
+                    MATCH 
+                    (bestand:person {{ 
+                        vorname: $bestVorname,
+                        nachname: $bestNachname,
+                        geburtstag: $bestGeburtstag
+                     }}), 
+                    (neu:person {{
+                        vorname: $vorname,
+                        nachname: $nachname,
+                        geburtstag: $geburtstag
+                    }})
+                    CREATE (neu)-[:{relation1}]->(bestand)
+                    CREATE (bestand)-[:{relation2}]->(neu)
+                    RETURN (neu)"""
+                
+                result = session.run(query,
+                    bestVorname=person_in.verbindungMit.vorname,
+                    bestNachname=person_in.verbindungMit.nachname,
+                    bestGeburtstag=str(person_in.verbindungMit.geburtstag),
+                    vorname=person_in.vorname,
+                    nachname=person_in.nachname,
+                    geburtstag=str(person_in.geburtstag)
+                )
+
+                connectionNode = result.single()
+
+                if connectionNode:
+                    created_person = dict(connectionNode["neu"])
+                    return {
+                        "message": 'Knoten {} {} erstellt'.format(
+                            created_person.get('vorname'),
+                            created_person.get('nachname')
+                        ),"status_code": 200}
+                else:
+                    raise HTTPException(status_code=500, detail="Datenbankfehler beim erstellen Verknüpfungen")
             else:
-                raise HTTPException(status_code=500, detail="Fehler beim Erstellen des Person-Knotens.")
+                raise HTTPException(status_code=500, detail="Datenbankfehler beim erstellen Person")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
 

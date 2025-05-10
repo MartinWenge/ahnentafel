@@ -17,7 +17,7 @@ export class PersonenlisteBereitstellenService {
   getAllePersonen(): Observable<Person[]> {
     if (!this.personenCache$) {
       this.personenCache$ = this.http.get<Person[]>(this.apiConfig.apiUrl + this.apiUrlGetPersonen)
-        .pipe(shareReplay(1)); // Cache das letzte Ergebnis (1 bedeutet die letzte Emission)
+        .pipe(shareReplay(1));
     }
     console.log("successfully pulled list of persons");
     return this.personenCache$;
