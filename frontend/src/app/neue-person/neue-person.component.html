@@ -97,11 +97,14 @@
             personForm.controls['verbindungMit'].touched)){
             <mat-error>Verbundene Person ist erforderlich!</mat-error>
             }
-            <ul *ngIf="suchErgebnisse.length > 0">
-                <li *ngFor="let person of suchErgebnisse" (click)="selectPerson(person)">
-                    {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag}}
-                </li>
-            </ul>
+            <mat-action-list *ngIf="suchErgebnisse.length > 0">
+                @for (person of suchErgebnisse; track person.id) {
+                <button mat-list-item (click)="selectPerson(person)">
+                    {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                </button>
+                }
+            </mat-action-list>
+
             <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung
                 entfernen</button>
         </div>

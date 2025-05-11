@@ -1,29 +1,28 @@
-<h1>Die Ahnentafel der Familie Wengenmayr</h1>
-
-<mat-tab-group>
-    <mat-tab label="Übersicht">
-        <p>Hier entsteht die Übersicht über die gesamte Ahnentafel.</p>
-    </mat-tab>
-    <mat-tab label="Personensuche">
-        <p>Hier kannst du einen Ausschnitt des Stammbaums um eine Bezugsperson herum anschauen.</p>
-    </mat-tab>
-    <mat-tab label="Neue Person hinzufügen">
-        <p>Hier kannst du eine neue Person zur Ahnentafel hinzufügen.</p>
-        <mat-card>
-            <mat-card-content>
-                <app-neue-person></app-neue-person>
-            </mat-card-content>
-        </mat-card>
-    </mat-tab>
-    <mat-tab label="Verbindungen hinzufügen">
-        <p>Hier kannst du Verbindungen zwischen bestehenden Personen hinzufügen.</p>
-        <mat-card>
-            <mat-card-content>
-                <app-neue-verbindung></app-neue-verbindung>
-            </mat-card-content>
-        </mat-card>
-    </mat-tab>
-    <mat-tab label="Fehler beheben">
-        <p>Hier kannst du Fehler korrigieren, also Personen und Verbindungen entfernen.</p>
-    </mat-tab>
-</mat-tab-group>
+<!-- <app-toolbar-header></app-toolbar-header> -->
+<div class="body-container">
+    <mat-tab-group>
+        <mat-tab label="Übersicht">
+            <p>Hier entsteht die Übersicht über die gesamte Ahnentafel.</p>
+        </mat-tab>
+        <mat-tab label="Personensuche">
+            <p>Hier kannst du einen Ausschnitt des Stammbaums um eine Bezugsperson herum anschauen.</p>
+        </mat-tab>
+        <mat-tab label="Neue Person hinzufügen">
+            <mat-card>
+                <mat-card-content>
+                    <app-neue-person></app-neue-person>
+                </mat-card-content>
+            </mat-card>
+        </mat-tab>
+        <mat-tab label="Verbindungen hinzufügen">
+            <mat-card>
+                <mat-card-content>
+                    <app-neue-verbindung></app-neue-verbindung>
+                </mat-card-content>
+            </mat-card>
+        </mat-tab>
+        <mat-tab label="Fehler beheben">
+            <p>Hier kannst du Fehler korrigieren, also Personen und Verbindungen entfernen.</p>
+        </mat-tab>
+    </mat-tab-group>
+</div>
