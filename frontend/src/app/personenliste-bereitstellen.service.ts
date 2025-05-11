@@ -19,7 +19,6 @@ export class PersonenlisteBereitstellenService {
       this.personenCache$ = this.http.get<Person[]>(this.apiConfig.apiUrl + this.apiUrlGetPersonen)
         .pipe(shareReplay(1));
     }
-    console.log("successfully pulled list of persons");
     return this.personenCache$;
   }
 

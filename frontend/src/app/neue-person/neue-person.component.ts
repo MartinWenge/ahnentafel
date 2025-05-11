@@ -23,6 +23,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
   fehlermeldung: string = '';
   private apiUrlPostNeuePerson = 'api/neueperson';
   private destroy$ = new Subject<void>();
+  isLoading: boolean = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private personenBereitstellen: PersonenlisteBereitstellenService) {
     this.personForm = this.fb.group({
@@ -96,6 +97,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.personForm.valid) {
+      this.isLoading = true;
       const formValue = this.personForm.value;
       const neuePerson: PersonIn = {
         ...formValue,
@@ -117,9 +119,15 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
             this.fehlermeldung = '';
             this.personForm.reset();
             this.verbundenePerson = null;
-            this.personenBereitstellen.invalidateCache;
+            this.personenBereitstellen.invalidateCache();
+            this.personenBereitstellen.getAllePersonen().subscribe(updatedPersonen => {
+              this.allePersonen = updatedPersonen;
+              this.setupSuche();
+              this.isLoading = false;
+            });
           },
           error: (error) => {
+            this.isLoading = false;
             console.error('Fehler beim Erstellen der Person', error);
             this.fehlermeldung = 'Fehler beim Erstellen der Person.';
             this.erfolgsmeldung = '';

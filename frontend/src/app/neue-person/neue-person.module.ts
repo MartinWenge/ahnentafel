@@ -7,6 +7,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { MatRadioModule } from '@angular/material/radio';
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
-    MatRadioModule
+    MatRadioModule,
+    MatProgressSpinner
   ],
   exports: [
     NeuePersonComponent

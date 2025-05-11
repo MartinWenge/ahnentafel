@@ -9,3 +9,13 @@
     margin: 30px;
 }
 
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.loading-spinner mat-spinner {
+    margin-bottom: 10px;
+}

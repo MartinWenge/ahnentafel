@@ -1,6 +1,11 @@
 <h2>Neue Person anlegen</h2>
 <div class="form-container">
     <form [formGroup]="personForm" (ngSubmit)="onSubmit()">
+        <div *ngIf="isLoading" class="loading-spinner">
+            <mat-spinner></mat-spinner>
+            <p>Verarbeitung ...</p>
+        </div>
+
         <div>
             <mat-form-field class="input-full-width">
                 <mat-label>Vorname</mat-label>
@@ -84,10 +89,11 @@
             <p>Jede neue Person muss mit einer bestehenden Person verbunden sein:</p>
             <mat-form-field class="input-full-width">
                 <mat-label>Verbundene Person</mat-label>
-                <input matInput type="text" id="verbindungMit" formControlName="verbindungMit" (input)="onInputChange($event)"
-                    [value]="personForm.controls['verbindungMit'].value">
+                <input matInput type="text" id="verbindungMit" formControlName="verbindungMit"
+                    (input)="onInputChange($event)" [value]="personForm.controls['verbindungMit'].value">
             </mat-form-field>
-            @if(personForm.controls['verbindungMit'].hasError('required') && (personForm.controls['verbindungMit'].dirty ||
+            @if(personForm.controls['verbindungMit'].hasError('required') && (personForm.controls['verbindungMit'].dirty
+            ||
             personForm.controls['verbindungMit'].touched)){
             <mat-error>Verbundene Person ist erforderlich!</mat-error>
             }
@@ -106,14 +112,18 @@
                 <mat-radio-button value="ELTERNTEIL"><b>Elternteil</b> </mat-radio-button>
                 <mat-radio-button value="EHEPARTNER"><b>Ehepartner</b> </mat-radio-button>
             </mat-radio-group>
-            @if(personForm.controls['verbindungsart'].hasError('required') && (personForm.controls['verbindungsart'].dirty ||
+            @if(personForm.controls['verbindungsart'].hasError('required') &&
+            (personForm.controls['verbindungsart'].dirty ||
             personForm.controls['verbindungsart'].touched)){
             <mat-error>Verbindungsart ist erforderlich!</mat-error>
             }
             von verbundener Person.
         </div>
 
-        <button mat-raised-button type="submit" [disabled]="personForm.invalid">Speichern</button>
+        <button mat-raised-button type="submit" [disabled]="personForm.invalid"
+            [disabled]="personForm.invalid || isLoading">
+            {{ isLoading ? 'Wird gespeichert...' : 'Person erstellen' }}
+        </button>
     </form>
 </div>
 
