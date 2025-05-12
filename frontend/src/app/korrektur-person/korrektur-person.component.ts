@@ -16,12 +16,18 @@ import { MatButtonToggleChange } from '@angular/material/button-toggle';
 export class KorrekturPersonComponent implements OnInit, OnDestroy{
   allePersonen: Person[] = [];
   private destroy$ = new Subject<void>();
-  selectedCorrectionType: string | null = null;
+  selectedCorrectionType: string = "delete";
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService, private personenBereitstellen: PersonenlisteBereitstellenService) {}
 
-  onCorrectionTypeChange(event: MatButtonToggleChange): void {
-    this.selectedCorrectionType = event.value;
+  onCorrectionTypeChange(event: any | undefined): void {
+    if (event) {
+      this.selectedCorrectionType = event;
+      console.log('Ausgewählte Korrekturart:', this.selectedCorrectionType);
+    }
+    else {
+      console.log("value undefined: ", event );
+    }
   }
 
   ngOnInit(): void {
