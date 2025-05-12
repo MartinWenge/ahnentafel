@@ -1,0 +1,27 @@
+<h2>Korrektur bestehender Personen</h2>
+
+<mat-button-toggle-group 
+    name="correctionType" 
+    aria-label="Korrekturart wählen"
+    (valueChange)="onCorrectionTypeChange($event)">
+    <mat-button-toggle value="delete">Person löschen</mat-button-toggle>
+    <mat-button-toggle value="disconnect">Verbindung lösen</mat-button-toggle>
+</mat-button-toggle-group>
+
+<div *ngIf="selectedCorrectionType === 'delete'">
+    <h2>Person löschen</h2>
+    <p>Hier sind die Optionen zum Löschen der ausgewählten Person...</p>
+    </div>
+  
+  <div *ngIf="selectedCorrectionType === 'disconnect'">
+    <h2>Verbindung lösen</h2>
+    <p>Hier sind die Optionen zum Lösen der Verbindung zwischen zwei ausgewählten Personen...</p>
+    </div>
+
+<mat-list role="list">
+    @for (person of allePersonen; track person.id) {
+    <mat-list-item role="listitem">
+        {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+    </mat-list-item>
+    }
+</mat-list>

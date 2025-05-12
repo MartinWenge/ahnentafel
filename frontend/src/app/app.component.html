@@ -1,28 +1,43 @@
-<!-- <app-toolbar-header></app-toolbar-header> -->
+<app-toolbar-header (navigateToPage)="handleNavigation($event)"></app-toolbar-header>
+
 <div class="body-container">
-    <mat-tab-group>
-        <mat-tab label="Übersicht">
-            <p>Hier entsteht die Übersicht über die gesamte Ahnentafel.</p>
-        </mat-tab>
-        <mat-tab label="Personensuche">
-            <p>Hier kannst du einen Ausschnitt des Stammbaums um eine Bezugsperson herum anschauen.</p>
-        </mat-tab>
-        <mat-tab label="Neue Person hinzufügen">
-            <mat-card>
-                <mat-card-content>
-                    <app-neue-person></app-neue-person>
-                </mat-card-content>
-            </mat-card>
-        </mat-tab>
-        <mat-tab label="Verbindungen hinzufügen">
-            <mat-card>
-                <mat-card-content>
-                    <app-neue-verbindung></app-neue-verbindung>
-                </mat-card-content>
-            </mat-card>
-        </mat-tab>
-        <mat-tab label="Fehler beheben">
-            <p>Hier kannst du Fehler korrigieren, also Personen und Verbindungen entfernen.</p>
-        </mat-tab>
-    </mat-tab-group>
+    <div *ngIf="currentPage === 'start'">
+        <mat-tab-group>
+            <mat-tab label="Übersicht">
+                <p>Hier entsteht die Übersicht über die gesamte Ahnentafel.</p>
+            </mat-tab>
+            <mat-tab label="Personensuche">
+                <p>Hier kannst du einen Ausschnitt des Stammbaums um eine Bezugsperson herum anschauen.</p>
+            </mat-tab>
+            <mat-tab label="Neue Person hinzufügen">
+                <mat-card>
+                    <mat-card-content>
+                        <app-neue-person></app-neue-person>
+                    </mat-card-content>
+                </mat-card>
+            </mat-tab>
+            <mat-tab label="Verbindungen hinzufügen">
+                <mat-card>
+                    <mat-card-content>
+                        <app-neue-verbindung></app-neue-verbindung>
+                    </mat-card-content>
+                </mat-card>
+            </mat-tab>
+            <mat-tab label="Fehler beheben">
+                <mat-card>
+                    <mat-card-content>
+                        <app-korrektur-person></app-korrektur-person>
+                    </mat-card-content>
+                </mat-card>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+
+    <div *ngIf="currentPage === 'contact'">
+        <p>Martin Wengenmayr</p>
+        <p>Lohrstr. 42</p>
+        <p>D-09113 Chemnitz</p>
+
+        <p>github: MartinWenge</p>
+    </div>
 </div>

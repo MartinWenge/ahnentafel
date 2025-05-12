@@ -8,10 +8,13 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'frontend';
+  currentPage: 'start' | 'contact' = 'start';
 
   onTabChange(event: MatTabChangeEvent) {
-    console.log('Ausgewählter Tab Index:', event.index);
     console.log('Ausgewählter Tab Label:', event.tab.textLabel);
+  }
+
+  handleNavigation(page: 'start' | 'contact'): void {
+    this.currentPage = page;
   }
 }
