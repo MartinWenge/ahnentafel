@@ -1,8 +1,6 @@
 <h2>Korrektur bestehender Personen</h2>
 
-<mat-button-toggle-group 
-    name="correctionType"
-    aria-label="Korrekturart wählen"
+<mat-button-toggle-group name="correctionType" aria-label="Korrekturart wählen"
     (valueChange)="onCorrectionTypeChange($event)">
     <mat-button-toggle value="delete">Person löschen</mat-button-toggle>
     <mat-button-toggle value="disconnect">Verbindung lösen</mat-button-toggle>
@@ -10,18 +8,56 @@
 
 <div *ngIf="selectedCorrectionType === 'delete'">
     <h2>Person löschen</h2>
-    <p>Hier sind die Optionen zum Löschen der ausgewählten Person...</p>
+    <form [formGroup]="loeschenForm" (ngSubmit)="onSubmit()">
+        <div *ngIf="isLoading" class="loading-spinner">
+            <mat-spinner></mat-spinner>
+            <p>Verarbeitung ...</p>
+        </div>
+        <div *ngIf="!isLoading">
+            <div class="form-group-element">
+                <p>Wähle die Person aus, die du löschen möchtest</p>
+                <mat-form-field class="input-full-width">
+                    <mat-label>Vorhandene Person</mat-label>
+                    <input matInput type="text" id="personLoeschen" formControlName="personLoeschen"
+                        (input)="onInputChange($event)" [value]="loeschenForm.controls['personLoeschen'].value">
+                </mat-form-field>
+                @if(loeschenForm.controls['personLoeschen'].hasError('required') &&
+                (loeschenForm.controls['personLoeschen'].dirty ||
+                loeschenForm.controls['personLoeschen'].touched)){
+                <mat-error>Eine zu löschende Person muss ausgewählt werden</mat-error>
+                }
+                <mat-action-list *ngIf="suchErgebnisse.length > 0">
+                    @for (person of suchErgebnisse; track person.id) {
+                    <button mat-list-item (click)="selectPerson(person)">
+                        {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                    </button>
+                    }
+                </mat-action-list>
+
+                <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="ausgewaehltePerson">
+                    Eine andere Person auswählen
+                </button>
+
+            </div>
+            <div class="form-group-element">
+                <button mat-raised-button type="submit" [disabled]="loeschenForm.invalid"
+                    [disabled]="loeschenForm.invalid || isLoading">
+                    {{ isLoading ? 'Wird gesendet...' : 'Person löschen' }}
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div *ngIf="erfolgsmeldung">
+        {{ erfolgsmeldung }}
+    </div>
+
+    <div *ngIf="fehlermeldung">
+        {{ fehlermeldung }}
+    </div>
 </div>
 
 <div *ngIf="selectedCorrectionType === 'disconnect'">
     <h2>Verbindung lösen</h2>
     <p>Hier sind die Optionen zum Lösen der Verbindung zwischen zwei ausgewählten Personen...</p>
 </div>
-
-<mat-list role="list">
-    @for (person of allePersonen; track person.id) {
-    <mat-list-item role="listitem">
-        {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
-    </mat-list-item>
-    }
-</mat-list>
