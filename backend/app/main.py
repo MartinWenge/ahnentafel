@@ -169,6 +169,63 @@ async def get_nodes():
         result = session.run("MATCH (n) RETURN collect(n)")
         nodes = [record["collect(n)"] for record in result]
         return {"nodes": nodes}
+    
+@app.post("/api/deleteperson")
+async def delete_person(person: PersonConnection):
+    try:
+        with driver.session() as session:
+            query = """MATCH (p:person {
+                        vorname: $vorname,
+                        nachname: $nachname,
+                        geburtstag: $geburtstag
+                        }) RETURN (p)"""
+            
+            result = session.run(query,
+                                 vorname = person.vorname,
+                                 nachname = person.nachname,
+                                 geburtstag = str(person.geburtstag))
+            
+            connectionNode = result.single()
+
+            if(connectionNode):
+                query_1 = """MATCH (p:person {
+                            vorname: $vorname,
+                            nachname: $nachname,
+                            geburtstag: $geburtstag
+                            })-[r:%]->(o:person) DELETE(r)"""
+                
+                result_1 = session.run(query_1,
+                                    vorname = person.vorname,
+                                    nachname = person.nachname,
+                                    geburtstag = str(person.geburtstag))
+
+                query_2 = """MATCH (p:person {
+                            vorname: $vorname,
+                            nachname: $nachname,
+                            geburtstag: $geburtstag
+                            })<-[r:%]-(o:person) DELETE(r)"""
+                
+                result_2 = session.run(query_2,
+                                    vorname = person.vorname,
+                                    nachname = person.nachname,
+                                    geburtstag = str(person.geburtstag))
+
+                query_3 = """MATCH (p:person {
+                            vorname: $vorname,
+                            nachname: $nachname,
+                            geburtstag: $geburtstag
+                            }) DELETE(p)"""
+                
+                result_3 = session.run(query_3,
+                                    vorname = person.vorname,
+                                    nachname = person.nachname,
+                                    geburtstag = str(person.geburtstag))
+                
+                return {"message": f"{person.vorname} {person.nachname} gelöscht","status_code": 200}
+            else:
+                return {"message": "Angeforderter Knoten existiert nicht", "status_code": 204}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
 
 @app.on_event("shutdown")
 def shutdown_event():
