@@ -6,6 +6,7 @@ import { takeUntil } from 'rxjs';
 import { ApiConfigService } from '../api-config.service';
 import { PersonenlisteBereitstellenService } from '../personenliste-bereitstellen.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { PersonConnection } from '../models/person';
 
 @Component({
   selector: 'app-korrektur-person',
@@ -21,6 +22,7 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   isLoading: boolean = false;
   selectedCorrectionType: string = "";
+  apiUrlPersonLoeschen: string = "api/deleteperson"
   erfolgsmeldung: string = '';
   fehlermeldung: string = '';
 
@@ -93,15 +95,36 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.loeschenForm.valid) {
       this.isLoading = true;
-      setTimeout(() => {
-        // Nach 2 Sekunden (2000 Millisekunden) wird dieser Code ausgeführt
-        this.isLoading = false; // Spinner ausblenden
-        this.erfolgsmeldung = 'Person gelöscht simuliert :o)';
-        this.fehlermeldung = '';
-        this.loeschenForm.reset();
-      }, 3000);
 
-      // hier backend aufruf implementieren und timeout body in next block übernehmen
+      const personZumLoeschen: PersonConnection = {
+        vorname: this.ausgewaehltePerson?.vorname,
+        nachname: this.ausgewaehltePerson?.nachname,
+        geburtstag: this.ausgewaehltePerson?.geburtstag
+      }
+
+      this.http.post<PersonConnection>(this.apiConfig.apiUrl + this.apiUrlPersonLoeschen, personZumLoeschen)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log('Person erfolgreich gelöscht', response);
+            this.erfolgsmeldung = 'Person erfolgreich gelöscht!';
+            this.fehlermeldung = '';
+            this.loeschenForm.reset();
+            this.ausgewaehltePerson = null;
+            this.personenBereitstellen.invalidateCache();
+            this.personenBereitstellen.getAllePersonen().subscribe(updatedPersonen => {
+              this.allePersonen = updatedPersonen;
+              this.setupSuche();
+              this.isLoading = false;
+            });
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('Fehler beim Löschen der Person', error);
+            this.fehlermeldung = 'Fehler beim Löschen der Person.';
+            this.erfolgsmeldung = '';
+          }
+        });
     } else {
       this.fehlermeldung = 'Bitte füllen Sie alle erforderlichen Felder aus.';
       this.erfolgsmeldung = '';

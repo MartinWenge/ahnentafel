@@ -12,9 +12,9 @@ export interface Person {
 }
 
 export interface PersonConnection {
-  vorname: string;
-  nachname: string;
-  geburtstag: Date;
+  vorname?: string;
+  nachname?: string;
+  geburtstag?: Date;
 }
 
 export interface PersonIn extends Person {
