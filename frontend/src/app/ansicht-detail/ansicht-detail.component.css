@@ -1,0 +1,23 @@
+.form-group-element {
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.input-full-width {
+    min-width: 250px;
+    max-width: 600px;
+    width: 95%;
+    background-color: white;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.loading-spinner mat-spinner {
+    margin-bottom: 10px;
+}

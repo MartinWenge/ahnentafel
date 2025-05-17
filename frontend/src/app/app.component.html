@@ -4,27 +4,35 @@
     <div *ngIf="currentPage === 'start'">
         <mat-tab-group>
             <mat-tab label="Übersicht">
-                <p>Hier entsteht die Übersicht über die gesamte Ahnentafel.</p>
+                <mat-card class="mat-card-in-the-middle">
+                    <mat-card-content>
+                        <app-uebersicht></app-uebersicht>
+                    </mat-card-content>
+                </mat-card>
             </mat-tab>
             <mat-tab label="Personensuche">
-                <p>Hier kannst du einen Ausschnitt des Stammbaums um eine Bezugsperson herum anschauen.</p>
+                <mat-card class="mat-card-in-the-middle">
+                    <mat-card-content>
+                        <app-ansicht-detail></app-ansicht-detail>
+                    </mat-card-content>
+                </mat-card>
             </mat-tab>
             <mat-tab label="Neue Person hinzufügen">
-                <mat-card>
+                <mat-card class="mat-card-in-the-middle">
                     <mat-card-content>
                         <app-neue-person></app-neue-person>
                     </mat-card-content>
                 </mat-card>
             </mat-tab>
             <mat-tab label="Verbindungen hinzufügen">
-                <mat-card>
+                <mat-card class="mat-card-in-the-middle">
                     <mat-card-content>
                         <app-neue-verbindung></app-neue-verbindung>
                     </mat-card-content>
                 </mat-card>
             </mat-tab>
             <mat-tab label="Fehler beheben">
-                <mat-card>
+                <mat-card class="mat-card-in-the-middle">
                     <mat-card-content>
                         <app-korrektur-person></app-korrektur-person>
                     </mat-card-content>

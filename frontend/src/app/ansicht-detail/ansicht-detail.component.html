@@ -1,0 +1,51 @@
+<h2>Personensuche</h2>
+
+<p>Wähle eine bestehende Person aus und lasse dir alle verbundenen Personen anzeigen</p>
+
+<form [formGroup]="suchePersonForm" (ngSubmit)="onSubmit()">
+    <div *ngIf="isLoading" class="loading-spinner">
+        <mat-spinner></mat-spinner>
+        <p>Verarbeitung ...</p>
+    </div>
+    <div *ngIf="!isLoading">
+        <div class="form-group-element">
+            <p>Finde eine Person in der Liste</p>
+            <mat-form-field class="input-full-width">
+                <mat-label>Suche</mat-label>
+                <input matInput type="text" id="gesuchtePerson" formControlName="gesuchtePerson"
+                    (input)="onInputChange($event)" [value]="suchePersonForm.controls['gesuchtePerson'].value">
+            </mat-form-field>
+            @if(suchePersonForm.controls['gesuchtePerson'].hasError('required') &&
+            (suchePersonForm.controls['gesuchtePerson'].dirty ||
+            suchePersonForm.controls['gesuchtePerson'].touched)){
+            <mat-error>Eine Person aus der Liste muss ausgewählt werden</mat-error>
+            }
+            <mat-action-list *ngIf="suchErgebnisse.length > 0">
+                @for (person of suchErgebnisse; track person.id) {
+                <button mat-list-item (click)="selectPerson(person)">
+                    {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                </button>
+                }
+            </mat-action-list>
+
+            <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="gefundenePerson">
+                Suche zurücksetzen
+            </button>
+
+        </div>
+        <div class="form-group-element">
+            <button mat-raised-button type="submit" [disabled]="suchePersonForm.invalid"
+                [disabled]="suchePersonForm.invalid || isLoading">
+                {{ isLoading ? 'Wird gesendet...' : 'Person suchen' }}
+            </button>
+        </div>
+    </div>
+</form>
+
+<div *ngIf="erfolgsmeldung && gefundenePerson">
+    {{ gefundenePerson.vorname }} {{ gefundenePerson.nachname }}, {{ gefundenePerson.geburtstag | date: 'dd.MM.yyyy' }}
+</div>
+
+<div *ngIf="fehlermeldung">
+    {{ fehlermeldung }}
+</div>

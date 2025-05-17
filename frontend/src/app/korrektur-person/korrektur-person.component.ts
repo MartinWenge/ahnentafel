@@ -1,12 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Person } from '../models/person';
+import { Person, PersonConnection } from '../models/person';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, map, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { ApiConfigService } from '../api-config.service';
 import { PersonenlisteBereitstellenService } from '../personenliste-bereitstellen.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PersonConnection } from '../models/person';
 
 @Component({
   selector: 'app-korrektur-person',

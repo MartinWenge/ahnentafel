@@ -7,10 +7,10 @@ import { ToolbarHeaderModule } from './toolbar-header/toolbar-header.module';
 import { NeuePersonModule } from './neue-person/neue-person.module';
 import { NeueVerbindungModule } from './neue-verbindung/neue-verbindung.modules';
 import { KorrekturPersonModule } from './korrektur-person/korrektur-person.module';
+import { UebersichtModule } from './uebersicht/uebersicht.module';
+import { AnsichtDetailModule } from './ansicht-detail/ansicht-detail.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
-import { KorrekturPersonComponent } from './korrektur-person/korrektur-person.component';
-
 
 @NgModule({
   declarations: [
@@ -24,6 +24,8 @@ import { KorrekturPersonComponent } from './korrektur-person/korrektur-person.co
     NeuePersonModule,
     NeueVerbindungModule,
     KorrekturPersonModule,
+    UebersichtModule,
+    AnsichtDetailModule,
     MatTabsModule,
     MatCardModule
   ],
