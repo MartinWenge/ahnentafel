@@ -2,9 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from neo4j import GraphDatabase
-from pydantic import BaseModel, Field
 from datetime import date
-from typing import List, Optional
+from typing import List
+from models.person import PersonConnection, PersonOut, PersonIn, PersonMitVerbindungen
 
 NEO4J_USER: str = os.environ.get("NEO4J_USER", "neo4j")
 NEO4J_URI: str = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
@@ -26,37 +26,6 @@ app.add_middleware(
     allow_methods=["*"],  # Erlaubt alle HTTP-Methoden (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],  # Erlaubt alle Header
 )
-
-class PersonConnection(BaseModel):
-    vorname: str = Field(..., description="Vorname der zu verbindenden Person")
-    nachname: str = Field(..., description="Nachname der zu verbindenden Person")
-    geburtstag: date = Field(..., description="Geburtsdatum der zu verbindenden Person im Format YYYY-MM-TT")
-
-class PersonIn(BaseModel):
-    id: Optional[int] = Field(None, description="Id der Person in der Datenbank")
-    vorname: str = Field(..., description="Vorname der Person")
-    nachname: str = Field(..., description="Nachname der Person")
-    geburtstag: date = Field(..., description="Geburtsdatum der Person im Format YYYY-MM-TT")
-    geschlecht: str = Field(..., description="Geschlecht (männlich:m, weiblich:w)")
-    geburtsname: Optional[str] = Field(None, description="Geburtsname, falls vorhanden (optional)")
-    geburtsort: Optional[str] = Field(None, description="Geburtsort der Person (optional)")
-    todestag: Optional[date] = Field(None, description="Todestag der Person im Format YYYY-MM-TT (optional)")
-    todesort: Optional[str] = Field(None, description="Todesort der Person (optional)")
-    beruf: Optional[str] = Field(None, description="Beruf der Person (optional)")
-    verbindungMit: PersonConnection = Field(..., description="Informationen zur verbundenen Person")
-    verbindungsart: str = Field(..., description="Verbindungstyp: KIND, ELTERNTEIL, EHEPARTNER")
-
-class PersonOut(BaseModel):
-    id: int
-    vorname: str
-    nachname: str
-    geburtstag: date
-    geschlecht: str
-    geburtsname: Optional[str] = None
-    geburtsort: Optional[str] = None
-    todestag: Optional[date] = None
-    todesort: Optional[str] = None
-    beruf: Optional[str] = None
 
 def close_driver():
     if driver:
@@ -226,6 +195,132 @@ async def delete_person(person: PersonConnection):
                 return {"message": "Angeforderter Knoten existiert nicht", "status_code": 204}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
+
+@app.get("/api/verbindungen")
+async def get_verbindungen(bezugsperson: PersonConnection):
+    try:
+        with driver.session() as session:
+            query = """MATCH (p: person {
+                            vorname: $vorname,
+                            nachname: $nachname,
+                            geburtstag: $geburtstag
+                            }) RETURN id(p) AS id, (p)"""
+            
+            result = session.run(query,
+                                 vorname = bezugsperson.vorname,
+                                 nachname = bezugsperson.nachname,
+                                 geburtstag = str(bezugsperson.geburtstag))
+            
+            nodeBezugsPerson = result.single()
+            dictsBezugsPerson = dict(nodeBezugsPerson["p"])
+            bezugspersonKomplett = PersonOut(
+                id=nodeBezugsPerson["id"],
+                vorname=dictsBezugsPerson.get("vorname"),
+                nachname=dictsBezugsPerson.get("nachname"),
+                geburtsname=dictsBezugsPerson.get("geburtsname"),
+                geschlecht=dictsBezugsPerson.get("geschlecht"),
+                geburtstag=dictsBezugsPerson.get("geburtstag"),
+                geburtsort=dictsBezugsPerson.get("geburtsort"),
+                todestag=dictsBezugsPerson.get("todestag") if len(dictsBezugsPerson.get("todestag")) > 1 else None,
+                todesort=dictsBezugsPerson.get("todesort"),
+                beruf=dictsBezugsPerson.get("beruf")
+
+            )
+
+            query_1 = """MATCH (bezug: person {
+                            vorname: $vorname,
+                            nachname: $nachname,
+                            geburtstag: $geburtstag
+                            })-[r:rel_kind]->(p: person) RETURN  id(p) AS id, (p)"""
+            
+            result_1 = session.run(query_1,
+                                    vorname = bezugsperson.vorname,
+                                    nachname = bezugsperson.nachname,
+                                    geburtstag = str(bezugsperson.geburtstag))
+            
+            kinderListe = []
+            for record in result_1:
+                person_data = record["p"]
+                kinderListe.append(PersonOut(
+                    id=record["id"],
+                    vorname=person_data.get("vorname"),
+                    nachname=person_data.get("nachname"),
+                    geburtsname=person_data.get("geburtsname"),
+                    geschlecht=person_data.get("geschlecht"),
+                    geburtstag=person_data.get("geburtstag"),
+                    geburtsort=person_data.get("geburtsort"),
+                    todestag=person_data.get("todestag") if len(person_data.get("todestag")) > 1 else None,
+                    todesort=person_data.get("todesort"),
+                    beruf=person_data.get("beruf")
+                ))
+
+            query_2 = """MATCH (bezug: person {
+                            vorname: $vorname,
+                            nachname: $nachname,
+                            geburtstag: $geburtstag
+                            })-[r:rel_elternteil]->(p: person) RETURN  id(p) AS id, (p)"""
+            
+            result_2 = session.run(query_2,
+                                    vorname = bezugsperson.vorname,
+                                    nachname = bezugsperson.nachname,
+                                    geburtstag = str(bezugsperson.geburtstag))
+            
+            elternListe = []
+            for record in result_2:
+                person_data = record["p"]
+                elternListe.append(PersonOut(
+                    id=record["id"],
+                    vorname=person_data.get("vorname"),
+                    nachname=person_data.get("nachname"),
+                    geburtsname=person_data.get("geburtsname"),
+                    geschlecht=person_data.get("geschlecht"),
+                    geburtstag=person_data.get("geburtstag"),
+                    geburtsort=person_data.get("geburtsort"),
+                    todestag=person_data.get("todestag") if len(person_data.get("todestag")) > 1 else None,
+                    todesort=person_data.get("todesort"),
+                    beruf=person_data.get("beruf")
+                ))
+
+            query_3 = """MATCH (bezug: person {
+                            vorname: $vorname,
+                            nachname: $nachname,
+                            geburtstag: $geburtstag
+                            })-[r:rel_ehepartner]->(p: person) RETURN  id(p) AS id, (p)"""
+            
+            result_3 = session.run(query_3,
+                                    vorname = bezugsperson.vorname,
+                                    nachname = bezugsperson.nachname,
+                                    geburtstag = str(bezugsperson.geburtstag))
+            
+            ehepartnerListe = []
+            for record in result_3:
+                person_data = record["p"]
+                ehepartnerListe.append(PersonOut(
+                    id=record["id"],
+                    vorname=person_data.get("vorname"),
+                    nachname=person_data.get("nachname"),
+                    geburtsname=person_data.get("geburtsname"),
+                    geschlecht=person_data.get("geschlecht"),
+                    geburtstag=person_data.get("geburtstag"),
+                    geburtsort=person_data.get("geburtsort"),
+                    todestag=person_data.get("todestag") if len(person_data.get("todestag")) > 1 else None,
+                    todesort=person_data.get("todesort"),
+                    beruf=person_data.get("beruf")
+                ))
+
+            verbindungen = PersonMitVerbindungen(
+                bezugsperson = bezugspersonKomplett,
+                kinder = kinderListe,
+                eltern = elternListe,
+                ehepartner = ehepartnerListe
+            )
+
+            if(verbindungen):
+                return verbindungen
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
+
 
 @app.on_event("shutdown")
 def shutdown_event():
