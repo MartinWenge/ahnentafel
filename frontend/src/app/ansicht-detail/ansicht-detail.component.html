@@ -42,10 +42,64 @@
     </div>
 </form>
 
-<div *ngIf="erfolgsmeldung && gefundenePerson">
-    {{ gefundenePerson.vorname }} {{ gefundenePerson.nachname }}, {{ gefundenePerson.geburtstag | date: 'dd.MM.yyyy' }}
+<div *ngIf="mitVerbindungenPerson">
+    @if(mitVerbindungenPerson.eltern && mitVerbindungenPerson.eltern.length > 0){
+    <mat-divider></mat-divider>
+    <h4>Eltern</h4>
+    <div class="horizontal-scroll-container">
+        @for(eltern of mitVerbindungenPerson.eltern; track eltern.id){
+        <div class="person-card-wrapper">
+            <app-display-person [person]="eltern" (personClicked)="handlePersonClick($event)">
+            </app-display-person>
+        </div>
+        }
+    </div>
+    }
+
+    <mat-divider></mat-divider>
+    <h4>Gesuchte Person @if(mitVerbindungenPerson.ehepartner && mitVerbindungenPerson.ehepartner.length > 0){ und
+        Ehepartner}</h4>
+
+    <div class="horizontal-scroll-container">
+        <div class="person-card-wrapper">
+            <app-display-person [person]="mitVerbindungenPerson.bezugsperson"
+                (personClicked)="handlePersonClick($event)" [highlightColor]="'cornflowerblue'">
+            </app-display-person>
+        </div>
+
+        @if(mitVerbindungenPerson.ehepartner && mitVerbindungenPerson.ehepartner.length > 0){
+        @for(ehepartner of mitVerbindungenPerson.ehepartner; track ehepartner.id){
+        <div class="person-card-wrapper">
+            <app-display-person [person]="ehepartner" (personClicked)="handlePersonClick($event)">
+            </app-display-person>
+        </div>
+        }
+        }
+    </div>
+
+    @if(mitVerbindungenPerson.kinder && mitVerbindungenPerson.kinder.length > 0){
+    <mat-divider></mat-divider>
+    <h4>Kinder</h4>
+
+    <div class="horizontal-scroll-container">
+        @for(kinder of mitVerbindungenPerson.kinder; track kinder.id){
+        <div class="person-card-wrapper">
+            <app-display-person [person]="kinder" (personClicked)="handlePersonClick($event)">
+            </app-display-person>
+        </div>
+        }
+    </div>
+    }
+    <mat-divider></mat-divider>
 </div>
 
+<div *ngIf="erfolgsmeldung">
+    <p>
+        {{ erfolgsmeldung }}
+    </p>
+</div>
 <div *ngIf="fehlermeldung">
-    {{ fehlermeldung }}
+    <p>
+        {{ fehlermeldung }}
+    </p>
 </div>

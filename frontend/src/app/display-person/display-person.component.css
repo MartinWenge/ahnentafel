@@ -1,0 +1,12 @@
+.mat-card-display-person {
+    width: 240px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.mat-card-display-person:hover {
+    background-color: #e0e0e0;
+}
+
+.mat-card-display-person-content {
+    width: 220px;
+}

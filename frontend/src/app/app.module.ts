@@ -9,14 +9,13 @@ import { NeueVerbindungModule } from './neue-verbindung/neue-verbindung.modules'
 import { KorrekturPersonModule } from './korrektur-person/korrektur-person.module';
 import { UebersichtModule } from './uebersicht/uebersicht.module';
 import { AnsichtDetailModule } from './ansicht-detail/ansicht-detail.module';
+import { DisplayPersonModule } from './display-person/display-person.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
-import { DisplayPersonComponent } from './display-person/display-person.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    DisplayPersonComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -28,6 +27,7 @@ import { DisplayPersonComponent } from './display-person/display-person.componen
     KorrekturPersonModule,
     UebersichtModule,
     AnsichtDetailModule,
+    DisplayPersonModule,
     MatTabsModule,
     MatCardModule
   ],

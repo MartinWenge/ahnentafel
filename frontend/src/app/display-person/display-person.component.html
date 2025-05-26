@@ -1,0 +1,12 @@
+<mat-card class="mat-card-display-person" [ngStyle]="{'background-color': highlightColor || ''}">
+    <mat-card-content class="mat-card-display-person-content">
+        <h3>{{ person.vorname }} {{ person.nachname }}</h3>
+        <mat-list role="list">
+            <mat-list-item role="listitem">Geburtstag: {{person.geburtstag | date: 'dd.MM.yyyy'}}</mat-list-item>
+            <mat-list-item *ngIf="person.geburtsort" role="listitem">Geburtsort: {{person.geburtsort}}</mat-list-item>
+            <mat-list-item *ngIf="person.todestag" role="listitem">Todestag: {{person.todestag | date: 'dd.MM.yyyy'}}</mat-list-item>
+            <mat-list-item *ngIf="person.todesort" role="listitem">Todesort: {{person.todesort}}</mat-list-item>
+            <mat-list-item *ngIf="person.beruf" role="listitem">Beruf: {{person.beruf}}</mat-list-item>
+        </mat-list>
+    </mat-card-content>
+</mat-card>

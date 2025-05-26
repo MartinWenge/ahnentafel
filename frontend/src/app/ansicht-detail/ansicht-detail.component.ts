@@ -89,6 +89,7 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.suchePersonForm.valid) {
+      this.mitVerbindungenPerson = null;
       this.isLoading = true;
 
       let parameter = new HttpParams();
@@ -110,6 +111,8 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
             this.erfolgsmeldung = `Verbindungen zu ${this.gefundenePerson?.vorname} ${this.gefundenePerson?.nachname} gefunden`;
             this.fehlermeldung = ''
             this.mitVerbindungenPerson = response;
+            this.entferneVerbindung();
+            this.suchePersonForm.reset()
             this.isLoading = false;
           },
           error: (error: HttpErrorResponse) => {
@@ -136,5 +139,9 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
           }
         });
     }
+  }
+
+  handlePersonClick(clickedPerson: Person): void {
+    console.log(`${clickedPerson.vorname} ${clickedPerson.nachname} wurde geklickt.`);
   }
 }
