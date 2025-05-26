@@ -33,7 +33,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
       geschlecht: ['', Validators.required],
       geburtstag: ['', Validators.required],
       geburtsort: [''],
-      todestag: [''],
+      todestag: [null],
       todesort: [''],
       beruf: [''],
       verbindungMit: [null, Validators.required],
@@ -103,12 +103,16 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
         ...formValue,
         verbindungMit: this.verbundenePerson
           ? {
-              vorname: this.verbundenePerson.vorname,
-              nachname: this.verbundenePerson.nachname,
-              geburtstag: this.verbundenePerson.geburtstag
-            }
+            vorname: this.verbundenePerson.vorname,
+            nachname: this.verbundenePerson.nachname,
+            geburtstag: this.verbundenePerson.geburtstag
+          }
           : null
       };
+
+      if (formValue.todestag === '') {
+        neuePerson.todestag = undefined;
+      }
 
       this.http.post<Person>(this.apiConfig.apiUrl + this.apiUrlPostNeuePerson, neuePerson)
         .pipe(takeUntil(this.destroy$))
