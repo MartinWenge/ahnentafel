@@ -1,9 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from neo4j import GraphDatabase
 from datetime import date
-from typing import List
+from typing import List, Optional
 from models.person import PersonConnection, PersonOut, PersonIn, PersonMitVerbindungen
 
 NEO4J_USER: str = os.environ.get("NEO4J_USER", "neo4j")
@@ -197,7 +197,18 @@ async def delete_person(person: PersonConnection):
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
 
 @app.get("/api/verbindungen")
-async def get_verbindungen(bezugsperson: PersonConnection):
+async def get_verbindungen(
+    vorname: str = Query(..., description="Vorname der Bezugsperson"),
+    nachname: str = Query(..., description="Nachname der Bezugsperson"),
+    geburtstag: date = Query(..., description="Geburtstag der Bezugsperson im Format YYYY-MM-DD")
+):
+    bezugsperson_data = {
+        "vorname": vorname,
+        "nachname": nachname,
+        "geburtstag": geburtstag
+    }
+    bezugsperson = PersonConnection(**bezugsperson_data)
+
     try:
         with driver.session() as session:
             query = """MATCH (p: person {

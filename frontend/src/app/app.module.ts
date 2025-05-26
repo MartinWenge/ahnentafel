@@ -11,10 +11,12 @@ import { UebersichtModule } from './uebersicht/uebersicht.module';
 import { AnsichtDetailModule } from './ansicht-detail/ansicht-detail.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
+import { DisplayPersonComponent } from './display-person/display-person.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DisplayPersonComponent
   ],
   imports: [
     BrowserModule,

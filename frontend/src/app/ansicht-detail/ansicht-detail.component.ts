@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Person } from '../models/person';
-import { HttpClient } from '@angular/common/http';
+import { Person, PersonMitVerbindungen, PersonConnection } from '../models/person';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, map, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { ApiConfigService } from '../api-config.service';
@@ -20,6 +20,8 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
   allePersonen: Person[] = [];
   suchErgebnisse: Person[] = [];
   gefundenePerson: Person | null = null;
+  mitVerbindungenPerson: PersonMitVerbindungen | null = null;
+  apiUrlPersonZumSuchem: string = "api/verbindungen"
   erfolgsmeldung: string = '';
   fehlermeldung: string = '';
   private destroy$ = new Subject<void>();
@@ -88,11 +90,51 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.suchePersonForm.valid) {
       this.isLoading = true;
-      console.log("suche Person in Datenbank...");
-      setTimeout(() => {
-        this.erfolgsmeldung = "Daten geladen";
-        this.isLoading = false;
-      }, 1000);
+
+      let parameter = new HttpParams();
+      if (this.gefundenePerson?.vorname) {
+        parameter = parameter.set('vorname', this.gefundenePerson.vorname);
+      }
+      if (this.gefundenePerson?.nachname) {
+        parameter = parameter.set('nachname', this.gefundenePerson.nachname);
+      }
+      if (this.gefundenePerson?.geburtstag) {
+        parameter = parameter.set('geburtstag', String(this.gefundenePerson.geburtstag));
+      }
+
+      this.http.get<PersonMitVerbindungen>(this.apiConfig.apiUrl + this.apiUrlPersonZumSuchem, { params: parameter })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log("Erfolgreich Verbindungen zu Person abgerufen");
+            this.erfolgsmeldung = `Verbindungen zu ${this.gefundenePerson?.vorname} ${this.gefundenePerson?.nachname} gefunden`;
+            this.fehlermeldung = ''
+            this.mitVerbindungenPerson = response;
+            this.isLoading = false;
+          },
+          error: (error: HttpErrorResponse) => {
+            let errorMessage = 'Ein unbekannter Fehler ist aufgetreten.';
+
+            if (error.error instanceof ErrorEvent) {
+              errorMessage = `Fehler: ${error.error.message}`;
+            } else {
+              switch (error.status) {
+                case 422:
+                  errorMessage = 'Die Eingabeparameter konnten nicht verarbeitet werden';
+                  break;
+                case 500:
+                  errorMessage = 'Ein unerwarteter Serverfehler ist aufgetreten.';
+                  break;
+                default:
+                  errorMessage = `Unbekannter Fehler ${error.status}: Ein Problem ist aufgetreten.`;
+                  break;
+              }
+            }
+            this.fehlermeldung = errorMessage;
+            this.erfolgsmeldung = '';
+            this.isLoading = false;
+          }
+        });
     }
   }
 }

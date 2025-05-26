@@ -21,3 +21,10 @@ export interface PersonIn extends Person {
   verbindungMit: PersonConnection;
   verbindungsart: string;
 }
+
+export interface PersonMitVerbindungen {
+  bezugsperson: Person;
+  eltern?: Person[];
+  kinder?: Person[];
+  ehepartner?: Person[];
+}
