@@ -2,10 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
-import { ApiConfigService } from '../api-config.service';
-import { PersonenlisteBereitstellenService } from '../personenliste-bereitstellen.service';
+import { ApiConfigService } from '../services/api-config.service';
+import { PersonenlisteBereitstellenService } from '../services/personenliste-bereitstellen.service';
 import { debounceTime, distinctUntilChanged, takeUntil, map } from 'rxjs/operators';
 import { Person, PersonIn } from '../models/person';
+import { LoginService } from '../services/login.service';
 
 @Component({
   selector: 'app-neue-person',
@@ -25,7 +26,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   isLoading: boolean = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private personenBereitstellen: PersonenlisteBereitstellenService) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private loginService: LoginService, private personenBereitstellen: PersonenlisteBereitstellenService) {
     this.personForm = this.fb.group({
       vorname: ['', Validators.required],
       nachname: ['', Validators.required],
@@ -101,11 +102,13 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
       const formValue = this.personForm.value;
       const neuePerson: PersonIn = {
         ...formValue,
+        tenant: this.loginService.getTenantId(),
         verbindungMit: this.verbundenePerson
           ? {
             vorname: this.verbundenePerson.vorname,
             nachname: this.verbundenePerson.nachname,
-            geburtstag: this.verbundenePerson.geburtstag
+            geburtstag: this.verbundenePerson.geburtstag,
+            tenant: this.verbundenePerson.tenant
           }
           : null
       };

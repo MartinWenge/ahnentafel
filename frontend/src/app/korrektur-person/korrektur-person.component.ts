@@ -3,8 +3,8 @@ import { Person, PersonConnection } from '../models/person';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, map, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
-import { ApiConfigService } from '../api-config.service';
-import { PersonenlisteBereitstellenService } from '../personenliste-bereitstellen.service';
+import { ApiConfigService } from '../services/api-config.service';
+import { PersonenlisteBereitstellenService } from '../services/personenliste-bereitstellen.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -98,7 +98,8 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
       const personZumLoeschen: PersonConnection = {
         vorname: this.ausgewaehltePerson?.vorname,
         nachname: this.ausgewaehltePerson?.nachname,
-        geburtstag: this.ausgewaehltePerson?.geburtstag
+        geburtstag: this.ausgewaehltePerson?.geburtstag,
+        tenant: this.ausgewaehltePerson?.tenant
       }
 
       this.http.post<PersonConnection>(this.apiConfig.apiUrl + this.apiUrlPersonLoeschen, personZumLoeschen)

@@ -1,5 +1,6 @@
 export interface Person {
   id?: number;
+  tenant?: string;
   vorname: string;
   nachname: string;
   geburtsname?: string;
@@ -15,6 +16,7 @@ export interface PersonConnection {
   vorname?: string;
   nachname?: string;
   geburtstag?: Date;
+  tenant?: string;
 }
 
 export interface PersonIn extends Person {

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KorrekturPersonComponent } from './korrektur-person.component';
-import { ApiConfigService } from '../api-config.service';
+import { ApiConfigService } from '../services/api-config.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';

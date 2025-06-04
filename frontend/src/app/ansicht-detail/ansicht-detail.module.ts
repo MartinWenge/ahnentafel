@@ -4,7 +4,7 @@ import { AnsichtDetailComponent } from './ansicht-detail.component';
 import { DisplayPersonModule } from '../display-person/display-person.module';
 
 import { HttpClientModule } from '@angular/common/http';
-import { ApiConfigService } from '../api-config.service';
+import { ApiConfigService } from '../services/api-config.service';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule} from '@angular/material/form-field';

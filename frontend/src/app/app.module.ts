@@ -12,6 +12,7 @@ import { AnsichtDetailModule } from './ansicht-detail/ansicht-detail.module';
 import { DisplayPersonModule } from './display-person/display-person.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
+import { LoginService } from './services/login.service';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,9 @@ import { MatCardModule } from '@angular/material/card';
     MatTabsModule,
     MatCardModule
   ],
-  providers: [],
+  providers: [
+    LoginService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NeueVerbindungComponent } from './neue-verbindung.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ApiConfigService } from '../api-config.service';
+import { ApiConfigService } from '../services/api-config.service';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';

@@ -39,17 +39,21 @@ async def get_verbindungen(
 ):
     validToken = "12stelligerT"
     if token == validToken:
-        return {"token": "b50d4bb8-e6a0-4015-afed-115f4e0d9d35", "status_code": 200}
+        return {"tenantId": "b50d4bb8-e6a0-4015-afed-115f4e0d9d35"}
     else:
         raise HTTPException(status_code=401, detail="Token invalide")
 
 
 @app.get("/api/personen", response_model=List[PersonOut])
-async def alle_personen():
+async def alle_personen(
+    tenant: str = Query(..., description="Kunden ID des aktuellen tenants")
+):
     try:
         with driver.session() as session:
-            query = "MATCH (p:person) RETURN id(p) AS id, p"
-            result = session.run(query)
+            query = """MATCH (p:person {
+                                tenant: $tenantIn
+                                }) RETURN id(p) AS id, p"""
+            result = session.run(query, tenantIn=tenant)
             persons = []
             for record in result:
                 person_data = record["p"]

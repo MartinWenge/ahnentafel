@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { takeUntil, Subject } from 'rxjs';
 import { Person } from '../models/person';
-import { PersonenlisteBereitstellenService } from '../personenliste-bereitstellen.service';
+import { PersonenlisteBereitstellenService } from '../services/personenliste-bereitstellen.service';
 
 @Component({
   selector: 'app-neue-verbindung',

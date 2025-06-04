@@ -2,43 +2,50 @@
 
 <div class="body-container">
     <div *ngIf="currentPage === 'start'">
-        <mat-tab-group>
-            <mat-tab label="Übersicht">
-                <mat-card class="mat-card-in-the-middle">
-                    <mat-card-content>
-                        <app-uebersicht></app-uebersicht>
-                    </mat-card-content>
-                </mat-card>
-            </mat-tab>
-            <mat-tab label="Personensuche">
-                <mat-card class="mat-card-in-the-middle">
-                    <mat-card-content>
-                        <app-ansicht-detail></app-ansicht-detail>
-                    </mat-card-content>
-                </mat-card>
-            </mat-tab>
-            <mat-tab label="Neue Person hinzufügen">
-                <mat-card class="mat-card-in-the-middle">
-                    <mat-card-content>
-                        <app-neue-person></app-neue-person>
-                    </mat-card-content>
-                </mat-card>
-            </mat-tab>
-            <mat-tab label="Verbindungen hinzufügen">
-                <mat-card class="mat-card-in-the-middle">
-                    <mat-card-content>
-                        <app-neue-verbindung></app-neue-verbindung>
-                    </mat-card-content>
-                </mat-card>
-            </mat-tab>
-            <mat-tab label="Fehler beheben">
-                <mat-card class="mat-card-in-the-middle">
-                    <mat-card-content>
-                        <app-korrektur-person></app-korrektur-person>
-                    </mat-card-content>
-                </mat-card>
-            </mat-tab>
-        </mat-tab-group>
+        <div *ngIf="isLoggedIn; else notLoggedIn">
+            <mat-tab-group>
+                <mat-tab label="Übersicht">
+                    <mat-card class="mat-card-in-the-middle">
+                        <mat-card-content>
+                            <app-uebersicht></app-uebersicht>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab label="Personensuche">
+                    <mat-card class="mat-card-in-the-middle">
+                        <mat-card-content>
+                            <app-ansicht-detail></app-ansicht-detail>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab label="Neue Person hinzufügen">
+                    <mat-card class="mat-card-in-the-middle">
+                        <mat-card-content>
+                            <app-neue-person></app-neue-person>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab label="Verbindungen hinzufügen">
+                    <mat-card class="mat-card-in-the-middle">
+                        <mat-card-content>
+                            <app-neue-verbindung></app-neue-verbindung>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab label="Fehler beheben">
+                    <mat-card class="mat-card-in-the-middle">
+                        <mat-card-content>
+                            <app-korrektur-person></app-korrektur-person>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+
+        <ng-template #notLoggedIn>
+            hier gehts bald zum Login.
+        </ng-template>
+
     </div>
 
     <div *ngIf="currentPage === 'contact'">
