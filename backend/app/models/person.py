@@ -6,9 +6,11 @@ class PersonConnection(BaseModel):
     vorname: str = Field(..., description="Vorname der zu verbindenden Person")
     nachname: str = Field(..., description="Nachname der zu verbindenden Person")
     geburtstag: date = Field(..., description="Geburtsdatum der zu verbindenden Person im Format YYYY-MM-TT")
+    tenant: str = Field(..., description="guid für die Zuordnung des aktuellen tenant")
 
 class PersonIn(BaseModel):
     id: Optional[int] = Field(None, description="Id der Person in der Datenbank")
+    tenant: str = Field(..., description="guid für die Zuordnung des aktuellen tenant")
     vorname: str = Field(..., description="Vorname der Person")
     nachname: str = Field(..., description="Nachname der Person")
     geburtstag: date = Field(..., description="Geburtsdatum der Person im Format YYYY-MM-TT")
@@ -23,6 +25,7 @@ class PersonIn(BaseModel):
 
 class PersonOut(BaseModel):
     id: int
+    tenant: str
     vorname: str
     nachname: str
     geburtstag: date

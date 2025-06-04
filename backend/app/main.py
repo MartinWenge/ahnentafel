@@ -52,6 +52,7 @@ async def alle_personen():
                 person_data = record["p"]
                 persons.append(PersonOut(
                     id=record["id"],
+                    tenant=person_data.get("tenant"),
                     vorname=person_data.get("vorname"),
                     nachname=person_data.get("nachname"),
                     geburtsname=person_data.get("geburtsname"),
@@ -73,6 +74,7 @@ async def neue_person(person_in: PersonIn):
             query = """CREATE (neu:person {
                 vorname: $vorname,
                 nachname: $nachname,
+                tenant: $tenant,
                 geburtsname: $geburtsname,
                 geschlecht: $geschlecht,
                 geburtstag: $geburtstag,
@@ -86,6 +88,7 @@ async def neue_person(person_in: PersonIn):
             result = session.run(query,
                 vorname=person_in.vorname,
                 nachname=person_in.nachname,
+                tenant=person_in.tenant,
                 geburtsname=person_in.geburtsname,
                 geschlecht=person_in.geschlecht,
                 geburtstag=str(person_in.geburtstag),
@@ -156,13 +159,15 @@ async def delete_person(person: PersonConnection):
             query = """MATCH (p:person {
                         vorname: $vorname,
                         nachname: $nachname,
-                        geburtstag: $geburtstag
+                        geburtstag: $geburtstag,
+                        tenant: $tenant
                         }) RETURN (p)"""
             
             result = session.run(query,
                                  vorname = person.vorname,
                                  nachname = person.nachname,
-                                 geburtstag = str(person.geburtstag))
+                                 geburtstag = str(person.geburtstag),
+                                 tenant = person.tenant)
             
             connectionNode = result.single()
 
@@ -170,35 +175,41 @@ async def delete_person(person: PersonConnection):
                 query_1 = """MATCH (p:person {
                             vorname: $vorname,
                             nachname: $nachname,
-                            geburtstag: $geburtstag
+                            geburtstag: $geburtstag,
+                            tenant: $tenant
                             })-[r:%]->(o:person) DELETE(r)"""
                 
                 result_1 = session.run(query_1,
                                     vorname = person.vorname,
                                     nachname = person.nachname,
-                                    geburtstag = str(person.geburtstag))
+                                    geburtstag = str(person.geburtstag),
+                                    tenant = person.tenant)
 
                 query_2 = """MATCH (p:person {
                             vorname: $vorname,
                             nachname: $nachname,
-                            geburtstag: $geburtstag
+                            geburtstag: $geburtstag,
+                            tenant: $tenant
                             })<-[r:%]-(o:person) DELETE(r)"""
                 
                 result_2 = session.run(query_2,
                                     vorname = person.vorname,
                                     nachname = person.nachname,
-                                    geburtstag = str(person.geburtstag))
+                                    geburtstag = str(person.geburtstag),
+                                    tenant = person.tenant)
 
                 query_3 = """MATCH (p:person {
                             vorname: $vorname,
                             nachname: $nachname,
-                            geburtstag: $geburtstag
+                            geburtstag: $geburtstag,
+                            tenant: $tenant
                             }) DELETE(p)"""
                 
                 result_3 = session.run(query_3,
                                     vorname = person.vorname,
                                     nachname = person.nachname,
-                                    geburtstag = str(person.geburtstag))
+                                    geburtstag = str(person.geburtstag),
+                                    tenant = person.tenant)
                 
                 return {"message": f"{person.vorname} {person.nachname} gelöscht","status_code": 200}
             else:
@@ -210,12 +221,14 @@ async def delete_person(person: PersonConnection):
 async def get_verbindungen(
     vorname: str = Query(..., description="Vorname der Bezugsperson"),
     nachname: str = Query(..., description="Nachname der Bezugsperson"),
-    geburtstag: date = Query(..., description="Geburtstag der Bezugsperson im Format YYYY-MM-DD")
+    geburtstag: date = Query(..., description="Geburtstag der Bezugsperson im Format YYYY-MM-DD"),
+    tenant: str = Query(..., description="Kunden ID des aktuellen tenants")
 ):
     bezugsperson_data = {
         "vorname": vorname,
         "nachname": nachname,
-        "geburtstag": geburtstag
+        "geburtstag": geburtstag,
+        "tenant": tenant
     }
     bezugsperson = PersonConnection(**bezugsperson_data)
 
@@ -224,18 +237,21 @@ async def get_verbindungen(
             query = """MATCH (p: person {
                             vorname: $vorname,
                             nachname: $nachname,
-                            geburtstag: $geburtstag
+                            geburtstag: $geburtstag,
+                            tenant: $tenant
                             }) RETURN id(p) AS id, (p)"""
             
             result = session.run(query,
                                  vorname = bezugsperson.vorname,
                                  nachname = bezugsperson.nachname,
-                                 geburtstag = str(bezugsperson.geburtstag))
+                                 geburtstag = str(bezugsperson.geburtstag),
+                                 tenant = bezugsperson.tenant)
             
             nodeBezugsPerson = result.single()
             dictsBezugsPerson = dict(nodeBezugsPerson["p"])
             bezugspersonKomplett = PersonOut(
                 id=nodeBezugsPerson["id"],
+                tenant=dictsBezugsPerson.get("tenant"),
                 vorname=dictsBezugsPerson.get("vorname"),
                 nachname=dictsBezugsPerson.get("nachname"),
                 geburtsname=dictsBezugsPerson.get("geburtsname"),
@@ -251,19 +267,22 @@ async def get_verbindungen(
             query_1 = """MATCH (bezug: person {
                             vorname: $vorname,
                             nachname: $nachname,
-                            geburtstag: $geburtstag
+                            geburtstag: $geburtstag,
+                            tenant: $tenant
                             })-[r:rel_kind]->(p: person) RETURN  id(p) AS id, (p)"""
             
             result_1 = session.run(query_1,
                                     vorname = bezugsperson.vorname,
                                     nachname = bezugsperson.nachname,
-                                    geburtstag = str(bezugsperson.geburtstag))
+                                    geburtstag = str(bezugsperson.geburtstag),
+                                    tenant = bezugsperson.tenant)
             
             kinderListe = []
             for record in result_1:
                 person_data = record["p"]
                 kinderListe.append(PersonOut(
                     id=record["id"],
+                    tenant=person_data.get("tenant"),
                     vorname=person_data.get("vorname"),
                     nachname=person_data.get("nachname"),
                     geburtsname=person_data.get("geburtsname"),
@@ -278,19 +297,22 @@ async def get_verbindungen(
             query_2 = """MATCH (bezug: person {
                             vorname: $vorname,
                             nachname: $nachname,
-                            geburtstag: $geburtstag
+                            geburtstag: $geburtstag,
+                            tenant: $tenant
                             })-[r:rel_elternteil]->(p: person) RETURN  id(p) AS id, (p)"""
             
             result_2 = session.run(query_2,
                                     vorname = bezugsperson.vorname,
                                     nachname = bezugsperson.nachname,
-                                    geburtstag = str(bezugsperson.geburtstag))
+                                    geburtstag = str(bezugsperson.geburtstag),
+                                    tenant = bezugsperson.tenant)
             
             elternListe = []
             for record in result_2:
                 person_data = record["p"]
                 elternListe.append(PersonOut(
                     id=record["id"],
+                    tenant=person_data.get("tenant"),
                     vorname=person_data.get("vorname"),
                     nachname=person_data.get("nachname"),
                     geburtsname=person_data.get("geburtsname"),
@@ -305,19 +327,22 @@ async def get_verbindungen(
             query_3 = """MATCH (bezug: person {
                             vorname: $vorname,
                             nachname: $nachname,
-                            geburtstag: $geburtstag
+                            geburtstag: $geburtstag,
+                            tenant: $tenant
                             })-[r:rel_ehepartner]->(p: person) RETURN  id(p) AS id, (p)"""
             
             result_3 = session.run(query_3,
                                     vorname = bezugsperson.vorname,
                                     nachname = bezugsperson.nachname,
-                                    geburtstag = str(bezugsperson.geburtstag))
+                                    geburtstag = str(bezugsperson.geburtstag),
+                                    tenant = bezugsperson.tenant)
             
             ehepartnerListe = []
             for record in result_3:
                 person_data = record["p"]
                 ehepartnerListe.append(PersonOut(
                     id=record["id"],
+                    tenant=person_data.get("tenant"),
                     vorname=person_data.get("vorname"),
                     nachname=person_data.get("nachname"),
                     geburtsname=person_data.get("geburtsname"),
