@@ -31,6 +31,16 @@ def close_driver():
     if driver:
         driver.close()
 
+@app.get("/api/accesstoken")
+async def get_verbindungen(
+    token: str = Query(..., description="vom Benutzer eingegebener Token")
+):
+  validToken = "12stelligerT"
+  if token == validToken:
+      return {"message": "Token validiert","status_code": 200}
+  else:
+      return {"message": "Token invalide", "status_code": 401}
+
 @app.get("/api/personen", response_model=List[PersonOut])
 async def alle_personen():
     try:
