@@ -134,10 +134,10 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
             });
           },
           error: (error) => {
-            this.isLoading = false;
             console.error('Fehler beim Erstellen der Person', error);
             this.fehlermeldung = 'Fehler beim Erstellen der Person.';
             this.erfolgsmeldung = '';
+            this.isLoading = false;
           }
         });
     } else {

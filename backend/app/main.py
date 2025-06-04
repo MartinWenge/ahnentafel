@@ -133,7 +133,7 @@ async def neue_person(person_in: PersonIn):
                     geschlecht=person_in.geschlecht,
                     geburtstag=str(person_in.geburtstag),
                     geburtsort=person_in.geburtsort,
-                    todestag=str(person_in.todestag) if person_in.todestag else None,
+                    todestag=str(person_in.todestag) if person_in.todestag else "",
                     todesort=person_in.todesort,
                     beruf=person_in.beruf,
                 )

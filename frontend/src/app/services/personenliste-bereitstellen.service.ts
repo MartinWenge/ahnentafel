@@ -20,7 +20,7 @@ export class PersonenlisteBereitstellenService {
       let parameter = new HttpParams();
       const tenant: string = (this.loginService.getTenantId() || "").toString();
       parameter = parameter.set('tenant', tenant);
-      this.personenCache$ = this.http.get<Person[]>(this.apiConfig.apiUrl + this.apiUrlGetPersonen)
+      this.personenCache$ = this.http.get<Person[]>(this.apiConfig.apiUrl + this.apiUrlGetPersonen, { params: parameter })
         .pipe(shareReplay(1));
     }
     return this.personenCache$;

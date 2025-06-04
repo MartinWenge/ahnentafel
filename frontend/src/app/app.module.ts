@@ -13,6 +13,7 @@ import { DisplayPersonModule } from './display-person/display-person.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { LoginService } from './services/login.service';
+import { LoginModule } from './login/login.component.module';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { LoginService } from './services/login.service';
     UebersichtModule,
     AnsichtDetailModule,
     DisplayPersonModule,
+    LoginModule,
     MatTabsModule,
     MatCardModule
   ],

@@ -1,0 +1,13 @@
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.input-full-width {
+    min-width: 250px;
+    max-width: 600px;
+    width: 95%;
+    background-color: white;
+}

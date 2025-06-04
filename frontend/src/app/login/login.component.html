@@ -1,0 +1,32 @@
+<h2>Login</h2>
+<p>Wenn du einen Token erhalten hast, melde dich jetzt mit diesem an.</p>
+
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div *ngIf="isLoading" class="loading-spinner">
+        <mat-spinner></mat-spinner>
+        <p>Verarbeitung ...</p>
+    </div>
+    <div *ngIf="!isLoading">
+        <mat-form-field class="input-full-width">
+            <mat-label>Zugangs-Token</mat-label>
+            <input matInput type="password" id="tokenInput" formControlName="tokenInput">
+        </mat-form-field>
+        @if(loginForm.controls['tokenInput'].hasError('required') &&
+        (loginForm.controls['tokenInput'].dirty ||
+        loginForm.controls['tokenInput'].touched)){
+        <mat-error>Ein 12-stelliger Token muss eingegeben werden.</mat-error>
+        }
+    </div>
+    <button mat-raised-button type="submit" [disabled]="loginForm.invalid || isLoading">
+        {{ isLoading ? 'Wird gesendet...' : 'Login' }}
+    </button>
+
+</form>
+
+<div *ngIf="erfolgsmeldung">
+    <p>{{ erfolgsmeldung }}</p>
+</div>
+
+<div *ngIf="fehlermeldung">
+    <p>{{ fehlermeldung }}</p>
+</div>

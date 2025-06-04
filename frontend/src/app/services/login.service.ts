@@ -8,7 +8,7 @@ import { Observable, BehaviorSubject, of, tap, catchError } from 'rxjs';
 })
 export class LoginService {
 
-  private readonly apiUrlGetValidateAccessToken = '/api/accesstoken';
+  private readonly apiUrlGetValidateAccessToken = 'api/accesstoken';
   private tenantIdSubject = new BehaviorSubject<string | null>(null);
   tenantId$: Observable<string | null> = this.tenantIdSubject.asObservable();
 
