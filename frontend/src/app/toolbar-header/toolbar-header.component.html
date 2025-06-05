@@ -1,6 +1,11 @@
 <mat-toolbar color="primary">
     <span class="toolbar-title" (click)="navigateToStart()">Ahnentafel Wengenmayr und Co.</span>
     <span class="spacer"></span>
+    <div *ngIf="isLoggedIn">
+        <button mat-button (click)="logout()">
+            Logout <mat-icon>logout</mat-icon>
+        </button>
+    </div>
     <button mat-button (click)="showContact()">
         Kontakt <mat-icon>support_agent</mat-icon>
     </button>

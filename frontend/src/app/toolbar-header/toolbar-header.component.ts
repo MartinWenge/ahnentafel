@@ -1,4 +1,6 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Subscription, map } from 'rxjs';
+import { LoginService } from '../services/login.service';
 
 @Component({
   selector: 'app-toolbar-header',
@@ -6,11 +8,27 @@ import { Component, Output, EventEmitter } from '@angular/core';
   templateUrl: './toolbar-header.component.html',
   styleUrl: './toolbar-header.component.css'
 })
-export class ToolbarHeaderComponent {
-
+export class ToolbarHeaderComponent implements OnInit, OnDestroy {
   @Output() navigateToPage = new EventEmitter<'start' | 'contact'>();
 
-  constructor() {}
+  isLoggedIn: boolean = false;
+  private isLoggedInSubscription!: Subscription;
+
+  constructor(private loginService: LoginService) { }
+
+  ngOnInit(): void {
+    this.isLoggedInSubscription = this.loginService.tenantId$.pipe(
+      map(tenantId => !!tenantId)
+    ).subscribe(loggedInStatus => {
+      this.isLoggedIn = loggedInStatus;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.isLoggedInSubscription) {
+      this.isLoggedInSubscription.unsubscribe();
+    }
+  }
 
   navigateToStart(): void {
     this.navigateToPage.emit('start');
@@ -20,4 +38,7 @@ export class ToolbarHeaderComponent {
     this.navigateToPage.emit('contact');
   }
 
+  logout(): void {
+    this.loginService.logout();
+  }
 }
