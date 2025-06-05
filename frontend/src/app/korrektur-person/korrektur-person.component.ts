@@ -24,6 +24,7 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
   apiUrlPersonLoeschen: string = "api/deleteperson"
   erfolgsmeldung: string = '';
   fehlermeldung: string = '';
+  personIstGeloescht: boolean = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private personenBereitstellen: PersonenlisteBereitstellenService) {
     this.loeschenForm = this.fb.group({
@@ -35,6 +36,10 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
     if (event) {
       this.selectedCorrectionType = event;
     }
+  }
+
+  resetPersonIstGeloescht(): void {
+    this.personIstGeloescht = false;
   }
 
   ngOnInit(): void {

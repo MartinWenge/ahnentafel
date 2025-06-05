@@ -19,3 +19,7 @@
 .loading-spinner mat-spinner {
     margin-bottom: 10px;
 }
+
+.nochmal-button {
+    margin: 25px;
+}

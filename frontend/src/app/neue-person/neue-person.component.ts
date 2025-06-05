@@ -25,6 +25,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
   private apiUrlPostNeuePerson = 'api/neueperson';
   private destroy$ = new Subject<void>();
   isLoading: boolean = false;
+  personIstErstellt: boolean = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private loginService: LoginService, private personenBereitstellen: PersonenlisteBereitstellenService) {
     this.personForm = this.fb.group({
@@ -96,9 +97,15 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
     this.personForm.patchValue({ verbindungMit: null });
   }
 
+  resetPersonIstErstellt(): void {
+    this.personIstErstellt = false;
+  }
+
   onSubmit(): void {
     if (this.personForm.valid) {
       this.isLoading = true;
+      this.erfolgsmeldung = '';
+      this.fehlermeldung = '';
       const formValue = this.personForm.value;
       const neuePerson: PersonIn = {
         ...formValue,
@@ -121,8 +128,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            console.log('Person erfolgreich erstellt', response);
-            this.erfolgsmeldung = 'Person erfolgreich erstellt!';
+            this.erfolgsmeldung = `${neuePerson.vorname} ${neuePerson.nachname} erfolgreich angelegt!`;
             this.fehlermeldung = '';
             this.personForm.reset();
             this.verbundenePerson = null;
@@ -130,6 +136,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
             this.personenBereitstellen.getAllePersonen().subscribe(updatedPersonen => {
               this.allePersonen = updatedPersonen;
               this.setupSuche();
+              this.personIstErstellt = true;
               this.isLoading = false;
             });
           },

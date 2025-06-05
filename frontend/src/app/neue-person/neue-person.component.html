@@ -1,142 +1,153 @@
 <h2>Neue Person anlegen</h2>
 <div class="form-container">
-    <form [formGroup]="personForm" (ngSubmit)="onSubmit()">
-        <div *ngIf="isLoading" class="loading-spinner">
-            <mat-spinner></mat-spinner>
-            <p>Verarbeitung ...</p>
+    <div *ngIf="personIstErstellt">
+        <div *ngIf="erfolgsmeldung">
+            {{ erfolgsmeldung }}
         </div>
-
-        <div *ngIf="!isLoading">
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Vorname</mat-label>
-                    <input matInput type="text" id="vorname" formControlName="vorname" required>
-                </mat-form-field>
-                @if(personForm.controls['vorname'].hasError('required') && (personForm.controls['vorname'].dirty ||
-                personForm.controls['vorname'].touched)){
-                <mat-error>Vorname ist erforderlich!</mat-error>
-                }
+        <div class="nochmal-button">
+            <button mat-raised-button onclick="resetPersonIstErstellt()">
+                Weitere Person anlegen
+            </button>
+        </div>
+    </div>
+    <div *ngIf="!personIstErstellt">
+        <form [formGroup]="personForm" (ngSubmit)="onSubmit()">
+            <div *ngIf="isLoading" class="loading-spinner">
+                <mat-spinner></mat-spinner>
+                <p>Verarbeitung ...</p>
             </div>
 
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Nachname</mat-label>
-                    <input matInput type="text" id="nachname" formControlName="nachname" required>
-                </mat-form-field>
-                @if(personForm.controls['nachname'].hasError('required') && (personForm.controls['nachname'].dirty ||
-                personForm.controls['nachname'].touched)){
-                <mat-error>Nachname ist erforderlich!</mat-error>
-                }
-            </div>
-
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Geburtsname</mat-label>
-                    <input matInput type="text" id="geburtsname" formControlName="geburtsname">
-                </mat-form-field>
-            </div>
-
-            <div>
-                <mat-radio-group aria-label="Geschlecht auswählen" formControlName="geschlecht">
-                    <mat-radio-button value="m">männlich</mat-radio-button>
-                    <mat-radio-button value="w">weiblich</mat-radio-button>
-                </mat-radio-group>
-                @if(personForm.controls['geschlecht'].hasError('required') && (personForm.controls['geschlecht'].dirty
-                ||
-                personForm.controls['geschlecht'].touched)){
-                <mat-error>Geschlecht ist erforderlich!</mat-error>
-                }
-            </div>
-
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Geburtstag</mat-label>
-                    <input matInput type="date" id="geburtstag" formControlName="geburtstag" required>
-                </mat-form-field>
-                @if(personForm.controls['geburtstag'].hasError('required') && (personForm.controls['geburtstag'].dirty
-                ||
-                personForm.controls['geburtstag'].touched)){
-                <mat-error>Geburtstag ist erforderlich!</mat-error>
-                }
-            </div>
-
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Geburtsort</mat-label>
-                    <input matInput type="text" id="geburtsort" formControlName="geburtsort">
-                </mat-form-field>
-            </div>
-
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Sterbedatum</mat-label>
-                    <input matInput type="date" id="todestag" formControlName="todestag">
-                </mat-form-field>
-            </div>
-
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Sterbeort</mat-label>
-                    <input matInput type="text" id="todesort" formControlName="todesort">
-                </mat-form-field>
-            </div>
-
-            <div>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Beruf</mat-label>
-                    <input matInput type="text" id="beruf" formControlName="beruf">
-                </mat-form-field>
-            </div>
-
-            <div>
-                <p>Jede neue Person muss mit einer bestehenden Person verbunden sein:</p>
-                <mat-form-field class="input-full-width">
-                    <mat-label>Verbundene Person</mat-label>
-                    <input matInput type="text" id="verbindungMit" formControlName="verbindungMit"
-                        (input)="onInputChange($event)" [value]="personForm.controls['verbindungMit'].value">
-                </mat-form-field>
-                @if(personForm.controls['verbindungMit'].hasError('required') &&
-                (personForm.controls['verbindungMit'].dirty
-                ||
-                personForm.controls['verbindungMit'].touched)){
-                <mat-error>Verbundene Person ist erforderlich!</mat-error>
-                }
-                <mat-action-list *ngIf="suchErgebnisse.length > 0">
-                    @for (person of suchErgebnisse; track person.id) {
-                    <button mat-list-item (click)="selectPerson(person)">
-                        {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
-                    </button>
+            <div *ngIf="!isLoading">
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Vorname</mat-label>
+                        <input matInput type="text" id="vorname" formControlName="vorname" required>
+                    </mat-form-field>
+                    @if(personForm.controls['vorname'].hasError('required') && (personForm.controls['vorname'].dirty ||
+                    personForm.controls['vorname'].touched)){
+                    <mat-error>Vorname ist erforderlich!</mat-error>
                     }
-                </mat-action-list>
+                </div>
 
-                <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung
-                    entfernen</button>
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Nachname</mat-label>
+                        <input matInput type="text" id="nachname" formControlName="nachname" required>
+                    </mat-form-field>
+                    @if(personForm.controls['nachname'].hasError('required') && (personForm.controls['nachname'].dirty
+                    ||
+                    personForm.controls['nachname'].touched)){
+                    <mat-error>Nachname ist erforderlich!</mat-error>
+                    }
+                </div>
+
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Geburtsname</mat-label>
+                        <input matInput type="text" id="geburtsname" formControlName="geburtsname">
+                    </mat-form-field>
+                </div>
+
+                <div>
+                    <mat-radio-group aria-label="Geschlecht auswählen" formControlName="geschlecht">
+                        <mat-radio-button value="m">männlich</mat-radio-button>
+                        <mat-radio-button value="w">weiblich</mat-radio-button>
+                    </mat-radio-group>
+                    @if(personForm.controls['geschlecht'].hasError('required') &&
+                    (personForm.controls['geschlecht'].dirty
+                    ||
+                    personForm.controls['geschlecht'].touched)){
+                    <mat-error>Geschlecht ist erforderlich!</mat-error>
+                    }
+                </div>
+
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Geburtstag</mat-label>
+                        <input matInput type="date" id="geburtstag" formControlName="geburtstag" required>
+                    </mat-form-field>
+                    @if(personForm.controls['geburtstag'].hasError('required') &&
+                    (personForm.controls['geburtstag'].dirty
+                    ||
+                    personForm.controls['geburtstag'].touched)){
+                    <mat-error>Geburtstag ist erforderlich!</mat-error>
+                    }
+                </div>
+
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Geburtsort</mat-label>
+                        <input matInput type="text" id="geburtsort" formControlName="geburtsort">
+                    </mat-form-field>
+                </div>
+
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Sterbedatum</mat-label>
+                        <input matInput type="date" id="todestag" formControlName="todestag">
+                    </mat-form-field>
+                </div>
+
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Sterbeort</mat-label>
+                        <input matInput type="text" id="todesort" formControlName="todesort">
+                    </mat-form-field>
+                </div>
+
+                <div>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Beruf</mat-label>
+                        <input matInput type="text" id="beruf" formControlName="beruf">
+                    </mat-form-field>
+                </div>
+
+                <div>
+                    <p>Jede neue Person muss mit einer bestehenden Person verbunden sein:</p>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Verbundene Person</mat-label>
+                        <input matInput type="text" id="verbindungMit" formControlName="verbindungMit"
+                            (input)="onInputChange($event)" [value]="personForm.controls['verbindungMit'].value">
+                    </mat-form-field>
+                    @if(personForm.controls['verbindungMit'].hasError('required') &&
+                    (personForm.controls['verbindungMit'].dirty
+                    ||
+                    personForm.controls['verbindungMit'].touched)){
+                    <mat-error>Verbundene Person ist erforderlich!</mat-error>
+                    }
+                    <mat-action-list *ngIf="suchErgebnisse.length > 0">
+                        @for (person of suchErgebnisse; track person.id) {
+                        <button mat-list-item (click)="selectPerson(person)">
+                            {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                        </button>
+                        }
+                    </mat-action-list>
+
+                    <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="verbundenePerson">Verbindung
+                        entfernen</button>
+                </div>
+                <div>
+                    <p>Neue Person ist</p>
+                    <mat-radio-group aria-label="Verbindungsart auswählen" formControlName="verbindungsart">
+                        <mat-radio-button value="KIND"> <b>Kind</b> </mat-radio-button>
+                        <mat-radio-button value="ELTERNTEIL"><b>Elternteil</b> </mat-radio-button>
+                        <mat-radio-button value="EHEPARTNER"><b>Ehepartner</b> </mat-radio-button>
+                    </mat-radio-group>
+                    @if(personForm.controls['verbindungsart'].hasError('required') &&
+                    (personForm.controls['verbindungsart'].dirty ||
+                    personForm.controls['verbindungsart'].touched)){
+                    <mat-error>Verbindungsart ist erforderlich!</mat-error>
+                    }
+                    <p>von verbundener Person.</p>
+                </div>
             </div>
-            <div>
-                <p>Neue Person ist</p>
-                <mat-radio-group aria-label="Verbindungsart auswählen" formControlName="verbindungsart">
-                    <mat-radio-button value="KIND"> <b>Kind</b> </mat-radio-button>
-                    <mat-radio-button value="ELTERNTEIL"><b>Elternteil</b> </mat-radio-button>
-                    <mat-radio-button value="EHEPARTNER"><b>Ehepartner</b> </mat-radio-button>
-                </mat-radio-group>
-                @if(personForm.controls['verbindungsart'].hasError('required') &&
-                (personForm.controls['verbindungsart'].dirty ||
-                personForm.controls['verbindungsart'].touched)){
-                <mat-error>Verbindungsart ist erforderlich!</mat-error>
-                }
-                <p>von verbundener Person.</p>
-            </div>
-        </div>
 
-        <button mat-raised-button type="submit" [disabled]="personForm.invalid"
-            [disabled]="personForm.invalid || isLoading">
-            {{ isLoading ? 'Wird gespeichert...' : 'Person erstellen' }}
-        </button>
-    </form>
-</div>
-
-<div *ngIf="erfolgsmeldung">
-    {{ erfolgsmeldung }}
+            <button mat-raised-button type="submit" [disabled]="personForm.invalid"
+                [disabled]="personForm.invalid || isLoading">
+                {{ isLoading ? 'Wird gespeichert...' : 'Person erstellen' }}
+            </button>
+        </form>
+    </div>
 </div>
 
 <div *ngIf="fehlermeldung">
