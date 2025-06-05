@@ -14,6 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { LoginService } from './services/login.service';
 import { LoginModule } from './login/login.component.module';
+import { ContactModule } from './contact/contact.component.module';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { LoginModule } from './login/login.component.module';
     AnsichtDetailModule,
     DisplayPersonModule,
     LoginModule,
+    ContactModule,
     MatTabsModule,
     MatCardModule
   ],
