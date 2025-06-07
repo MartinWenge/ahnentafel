@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from models.person import PersonIn
 
+
 def erstelleNeuePerson(driver, person_in: PersonIn):
     with driver.session() as session:
         query = """MATCH (p:person {
@@ -60,24 +61,33 @@ def erstelleNeuePerson(driver, person_in: PersonIn):
 
             if recordNode:
                 created_person = dict(recordNode["neu"])
-                relation1 = (
-                    "rel_ehepartner"
-                    if (person_in.verbindungsart == "EHEPARTNER")
-                    else (
-                        "rel_kind"
-                        if (person_in.verbindungsart == "KIND")
-                        else "rel_elternteil"
+                if (
+                    (person_in.verbindungsart == "EHEPARTNER")
+                    or (person_in.verbindungsart == "KIND")
+                    or (person_in.verbindungsart == "ELTERNTEIL")
+                ):
+                    relation1 = (
+                        "rel_ehepartner"
+                        if (person_in.verbindungsart == "EHEPARTNER")
+                        else (
+                            "rel_kind"
+                            if (person_in.verbindungsart == "KIND")
+                            else "rel_elternteil"
+                        )
                     )
-                )
-                relation2 = (
-                    "rel_ehepartner"
-                    if (person_in.verbindungsart == "EHEPARTNER")
-                    else (
-                        "rel_elternteil"
-                        if (person_in.verbindungsart == "KIND")
-                        else "rel_kind"
+                    relation2 = (
+                        "rel_ehepartner"
+                        if (person_in.verbindungsart == "EHEPARTNER")
+                        else (
+                            "rel_elternteil"
+                            if (person_in.verbindungsart == "KIND")
+                            else "rel_kind"
+                        )
                     )
-                )
+                else:
+                    raise HTTPException(
+                        status_code=409, detail="ungültiger Verbindungstyp"
+                    )
 
                 query = f"""
                         MATCH 
@@ -114,7 +124,7 @@ def erstelleNeuePerson(driver, person_in: PersonIn):
                             created_person.get("vorname"),
                             created_person.get("nachname"),
                         ),
-                        "status_code": 200,
+                        "status_code": 201,
                     }
                 else:
                     raise HTTPException(

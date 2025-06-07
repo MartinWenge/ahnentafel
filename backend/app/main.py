@@ -4,11 +4,18 @@ import os
 from neo4j import GraphDatabase
 from datetime import date
 from typing import List, Optional
-from models.person import PersonConnection, PersonOut, PersonIn, PersonMitVerbindungen
+from models.person import (
+    PersonConnection,
+    PersonOut,
+    PersonIn,
+    PersonenZumVerbinden,
+    PersonMitVerbindungen,
+)
 from functions.leseAllePersonen import leseAllePersonen
 from functions.erstelleNeuePerson import erstelleNeuePerson
 from functions.loeschePerson import loeschePerson
 from functions.leseVerbindungen import leseVerbindungen
+from functions.erstelleNeueVerbindung import erstelleNeueVerbindung
 
 NEO4J_USER: str = os.environ.get("NEO4J_USER", "neo4j")
 NEO4J_URI: str = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
@@ -71,6 +78,15 @@ async def neue_person(person_in: PersonIn):
             raise HTTPException(status_code=500, detail=f"{e}")
 
 
+@app.post("/api/neueverbindung")
+async def neue_verbindung(persons: PersonenZumVerbinden):
+    try:
+        response = erstelleNeueVerbindung(driver, persons)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
+
+
 @app.post("/api/deleteperson")
 async def delete_person(person: PersonConnection):
     try:
@@ -98,7 +114,7 @@ async def get_verbindungen(
     bezugsperson = PersonConnection(**bezugsperson_data)
 
     try:
-        verbindungen = leseVerbindungen(driver, bezugsperson)
+        verbindungen: PersonMitVerbindungen = leseVerbindungen(driver, bezugsperson)
         return verbindungen
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")

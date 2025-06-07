@@ -41,3 +41,8 @@ class PersonMitVerbindungen(BaseModel):
     kinder: list[PersonOut]
     eltern: list[PersonOut]
     ehepartner: list[PersonOut]
+
+class PersonenZumVerbinden(BaseModel):
+    person1: PersonConnection
+    person2: PersonConnection
+    verbindungsart: str = Field(..., description="Verbindungstyp: KIND, ELTERNTEIL, EHEPARTNER")
