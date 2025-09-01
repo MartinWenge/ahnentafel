@@ -2,3 +2,27 @@
     margin: 30px;
 }
 
+.input-wide {
+    width: 90%;
+}
+
+.form-group-element {
+    .form-box {
+        display: grid;
+        grid-template-columns: auto auto;
+
+        .left-box {
+            text-align: left;
+        }
+
+        .right-box {
+            text-align: left;
+        }
+    }
+
+    .center {
+        text-align: center;
+        margin: 15px;
+    }
+
+}

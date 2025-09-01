@@ -16,7 +16,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class AnsichtDetailComponent implements OnInit, OnDestroy {
   suchePersonForm: FormGroup;
-  suchText$ = new Subject<string>();
+  //suchText$ = new Subject<string>();
   allePersonen: Person[] = [];
   suchErgebnisse: Person[] = [];
   gefundenePerson: Person | null = null;

@@ -30,3 +30,9 @@ export interface PersonMitVerbindungen {
   kinder?: Person[];
   ehepartner?: Person[];
 }
+
+export interface PersonenVerbinden {
+  person1: PersonConnection;
+  person2: PersonConnection;
+  verbindungsart: string;
+}

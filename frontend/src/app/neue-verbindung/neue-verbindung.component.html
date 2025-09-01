@@ -2,8 +2,88 @@
 
 <p>Wähle zwei bestehende Personen und den Verbindungstyp aus, um eine neue Verbindung hinzuzufügen.</p>
 
-<ul>
-    <li *ngFor="let person of allePersonen">
-        {{ person.nachname }}, {{ person.vorname }} ({{ person.geburtstag | date: 'dd.MM.yyyy' }})
-    </li>
-</ul>
+<form [formGroup]="neueVerbindungForm" (ngSubmit)="onSubmit()">
+    <div *ngIf="isLoading" class="loading-spinner">
+        <mat-spinner></mat-spinner>
+        <p>Verarbeitung ...</p>
+    </div>
+    <div *ngIf="!isLoading">
+        <div class="form-group-element">
+            <div class="form-box">
+                <div class="left-box">
+                    <p>Wähle die erste Person aus.</p>
+                    <mat-form-field class="input-wide">
+                        <mat-label>Person eins</mat-label>
+                        <input matInput type="text" id="person1" formControlName="person1"
+                            (input)="onInputChange1($event)" [value]="neueVerbindungForm.controls['person1'].value">
+                    </mat-form-field>
+                    @if(neueVerbindungForm.controls['person1'].hasError('required') &&
+                    (neueVerbindungForm.controls['person1'].dirty ||
+                    neueVerbindungForm.controls['person1'].touched)){
+                    <mat-error>Eine Person aus der Liste muss ausgewählt werden</mat-error>
+                    }
+                    <mat-action-list *ngIf="suchErgebnis1.length > 0">
+                        @for (person of suchErgebnis1; track person.id) {
+                        <button mat-list-item (click)="selectPerson1(person)">
+                            {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                        </button>
+                        }
+                    </mat-action-list>
+                </div>
+
+                <div class="right-box">
+                    <p>Wähle die zweite Person aus.</p>
+                    <mat-form-field class="input-wide">
+                        <mat-label>Person zwei</mat-label>
+                        <input matInput type="text" id="person2" formControlName="person2"
+                            (input)="onInputChange2($event)" [value]="neueVerbindungForm.controls['person2'].value">
+                    </mat-form-field>
+                    @if(neueVerbindungForm.controls['person2'].hasError('required') &&
+                    (neueVerbindungForm.controls['person2'].dirty ||
+                    neueVerbindungForm.controls['person2'].touched)){
+                    <mat-error>Eine Person aus der Liste muss ausgewählt werden</mat-error>
+                    }
+                    <mat-action-list *ngIf="suchErgebnis2.length > 0">
+                        @for (person of suchErgebnis2; track person.id) {
+                        <button mat-list-item (click)="selectPerson2(person)">
+                            {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                        </button>
+                        }
+                    </mat-action-list>
+                </div>
+            </div>
+            <div class="center">
+                <button mat-button type="button" (click)="entferneVerbindung()"
+                    *ngIf="gefundenePerson1 || gefundenePerson2">
+                    Suche zurücksetzen
+                </button>
+            </div>
+
+            <p>Person 1 ist:</p>
+            <mat-radio-group aria-label="Verbindungsart auswählen" formControlName="verbindungsart">
+                <mat-radio-button value="KIND"> <b>Kind</b> </mat-radio-button>
+                <mat-radio-button value="ELTERNTEIL"><b>Elternteil</b> </mat-radio-button>
+                <mat-radio-button value="EHEPARTNER"><b>Ehepartner</b> </mat-radio-button>
+            </mat-radio-group>
+            @if(neueVerbindungForm.controls['verbindungsart'].hasError('required') &&
+            (neueVerbindungForm.controls['verbindungsart'].dirty ||
+            neueVerbindungForm.controls['verbindungsart'].touched)){
+            <mat-error>Verbindungsart ist erforderlich!</mat-error>
+            }
+            <p>von Person 2.</p>
+            
+        </div>
+        <div class="form-group-element">
+            <button mat-raised-button type="submit" [disabled]="neueVerbindungForm.invalid"
+                [disabled]="neueVerbindungForm.invalid || isLoading">
+                {{ isLoading ? 'Wird gesendet...' : 'Verbindung herstellen' }}
+            </button>
+        </div>
+    </div>
+</form>
+<div *ngIf="fehlermeldung">
+    {{ fehlermeldung }}
+</div>
+<div *ngIf="erfolgsmeldung">
+    {{ erfolgsmeldung}}
+</div>
