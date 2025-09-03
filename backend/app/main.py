@@ -14,6 +14,7 @@ from models.person import (
 from functions.leseAllePersonen import leseAllePersonen
 from functions.erstelleNeuePerson import erstelleNeuePerson
 from functions.loeschePerson import loeschePerson
+from functions.loescheVerbindung import loescheVerbindung
 from functions.leseVerbindungen import leseVerbindungen
 from functions.erstelleNeueVerbindung import erstelleNeueVerbindung
 
@@ -95,6 +96,13 @@ async def delete_person(person: PersonConnection):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
 
+@app.post("/api/deleteverbindung")
+async def delete_verbindung(verbindung: PersonenZumVerbinden):
+    try:
+        response = loescheVerbindung(driver, verbindung)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
 
 @app.get("/api/verbindungen")
 async def get_verbindungen(
