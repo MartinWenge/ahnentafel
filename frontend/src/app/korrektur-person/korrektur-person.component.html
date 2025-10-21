@@ -13,7 +13,7 @@
             {{ erfolgsmeldung }}
         </div>
         <div class="nochmal-button">
-            <button mat-raised-button onclick="resetPersonIstGeloescht()">
+            <button mat-raised-button (click)="resetPersonIstGeloescht()">
                 Weitere Person löschen
             </button>
         </div>
@@ -71,7 +71,7 @@
             {{ erfolgsmeldung }}
         </div>
         <div class="nochmal-button">
-            <button mat-raised-button onclick="resetverbindungIstGeloest()">
+            <button mat-raised-button (click)="resetverbindungIstGeloest()">
                 Weitere Verbindung lösen
             </button>
         </div>

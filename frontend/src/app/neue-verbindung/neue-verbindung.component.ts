@@ -22,6 +22,7 @@ export class NeueVerbindungComponent implements OnInit, OnDestroy {
   gefundenePerson2: Person | null = null;
   erfolgsmeldung: string = '';
   fehlermeldung: string = '';
+  verbindungHinzugefuegt: boolean = false;
   private apiURLPostNeueVerbindung = 'api/neueverbindung';
   private destroy$ = new Subject<void>();
   isLoading: boolean = false;
@@ -48,6 +49,10 @@ export class NeueVerbindungComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  resetVerbindungHinzugefuegt(): void {
+    this.verbindungHinzugefuegt = false;
   }
 
   setupSuche1(): void {
@@ -152,6 +157,7 @@ export class NeueVerbindungComponent implements OnInit, OnDestroy {
             this.allePersonen = updatedPersonen;
             this.setupSuche1();
             this.setupSuche2();
+            this.verbindungHinzugefuegt = true;
             this.isLoading = false;
           });
         },

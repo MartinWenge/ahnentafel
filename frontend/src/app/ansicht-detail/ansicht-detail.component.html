@@ -1,103 +1,113 @@
 <h2>Personensuche</h2>
 
-<p>Wähle eine bestehende Person aus und lasse dir alle verbundenen Personen anzeigen</p>
-
-<form [formGroup]="suchePersonForm" (ngSubmit)="onSubmit()">
-    <div *ngIf="isLoading" class="loading-spinner">
-        <mat-spinner></mat-spinner>
-        <p>Verarbeitung ...</p>
-    </div>
-    <div *ngIf="!isLoading">
-        <div class="form-group-element">
-            <p>Finde eine Person in der Liste</p>
-            <mat-form-field class="input-full-width">
-                <mat-label>Suche</mat-label>
-                <input matInput type="text" id="gesuchtePerson" formControlName="gesuchtePerson"
-                    (input)="onInputChange($event)" [value]="suchePersonForm.controls['gesuchtePerson'].value">
-            </mat-form-field>
-            @if(suchePersonForm.controls['gesuchtePerson'].hasError('required') &&
-            (suchePersonForm.controls['gesuchtePerson'].dirty ||
-            suchePersonForm.controls['gesuchtePerson'].touched)){
-            <mat-error>Eine Person aus der Liste muss ausgewählt werden</mat-error>
-            }
-            <mat-action-list *ngIf="suchErgebnisse.length > 0">
-                @for (person of suchErgebnisse; track person.id) {
-                <button mat-list-item (click)="selectPerson(person)">
-                    {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
-                </button>
+<div *ngIf="zeigeEingabefeld">
+    <p>Wähle eine bestehende Person aus und lasse dir alle verbundenen Personen anzeigen</p>
+    <form [formGroup]="suchePersonForm" (ngSubmit)="onSubmit()">
+        <div *ngIf="isLoading" class="loading-spinner">
+            <mat-spinner></mat-spinner>
+            <p>Verarbeitung ...</p>
+        </div>
+        <div *ngIf="!isLoading">
+            <div class="form-group-element">
+                <p>Finde eine Person in der Liste</p>
+                <mat-form-field class="input-full-width">
+                    <mat-label>Suche</mat-label>
+                    <input matInput type="text" id="gesuchtePerson" formControlName="gesuchtePerson"
+                        (input)="onInputChange($event)" [value]="suchePersonForm.controls['gesuchtePerson'].value">
+                </mat-form-field>
+                @if(suchePersonForm.controls['gesuchtePerson'].hasError('required') &&
+                (suchePersonForm.controls['gesuchtePerson'].dirty ||
+                suchePersonForm.controls['gesuchtePerson'].touched)){
+                <mat-error>Eine Person aus der Liste muss ausgewählt werden</mat-error>
                 }
-            </mat-action-list>
+                <mat-action-list *ngIf="suchErgebnisse.length > 0">
+                    @for (person of suchErgebnisse; track person.id) {
+                    <button mat-list-item (click)="selectPerson(person)">
+                        {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                    </button>
+                    }
+                </mat-action-list>
 
-            <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="gefundenePerson">
-                Suche zurücksetzen
-            </button>
+                <button mat-button type="button" (click)="entferneVerbindung()" *ngIf="gefundenePerson">
+                    Suche zurücksetzen
+                </button>
 
+            </div>
+            <div class="form-group-element">
+                <button mat-raised-button type="submit" [disabled]="suchePersonForm.invalid"
+                    [disabled]="suchePersonForm.invalid || isLoading">
+                    {{ isLoading ? 'Wird gesendet...' : 'Person suchen' }}
+                </button>
+            </div>
         </div>
-        <div class="form-group-element">
-            <button mat-raised-button type="submit" [disabled]="suchePersonForm.invalid"
-                [disabled]="suchePersonForm.invalid || isLoading">
-                {{ isLoading ? 'Wird gesendet...' : 'Person suchen' }}
-            </button>
-        </div>
-    </div>
-</form>
-
-<div *ngIf="mitVerbindungenPerson">
-    @if(mitVerbindungenPerson.eltern && mitVerbindungenPerson.eltern.length > 0){
-    <mat-divider></mat-divider>
-    <h4>Eltern</h4>
-    <div class="horizontal-scroll-container">
-        @for(eltern of mitVerbindungenPerson.eltern; track eltern.id){
-        <div class="person-card-wrapper">
-            <app-display-person [person]="eltern" (personClicked)="handlePersonClick($event)">
-            </app-display-person>
-        </div>
-        }
-    </div>
-    }
-
-    <mat-divider></mat-divider>
-    <h4>Gesuchte Person @if(mitVerbindungenPerson.ehepartner && mitVerbindungenPerson.ehepartner.length > 0){ und
-        Ehepartner}</h4>
-
-    <div class="horizontal-scroll-container">
-        <div class="person-card-wrapper">
-            <app-display-person [person]="mitVerbindungenPerson.bezugsperson"
-                (personClicked)="handlePersonClick($event)" [highlightColor]="'cornflowerblue'">
-            </app-display-person>
-        </div>
-
-        @if(mitVerbindungenPerson.ehepartner && mitVerbindungenPerson.ehepartner.length > 0){
-        @for(ehepartner of mitVerbindungenPerson.ehepartner; track ehepartner.id){
-        <div class="person-card-wrapper">
-            <app-display-person [person]="ehepartner" (personClicked)="handlePersonClick($event)">
-            </app-display-person>
-        </div>
-        }
-        }
-    </div>
-
-    @if(mitVerbindungenPerson.kinder && mitVerbindungenPerson.kinder.length > 0){
-    <mat-divider></mat-divider>
-    <h4>Kinder</h4>
-
-    <div class="horizontal-scroll-container">
-        @for(kinder of mitVerbindungenPerson.kinder; track kinder.id){
-        <div class="person-card-wrapper">
-            <app-display-person [person]="kinder" (personClicked)="handlePersonClick($event)">
-            </app-display-person>
-        </div>
-        }
-    </div>
-    }
-    <mat-divider></mat-divider>
+    </form>
 </div>
 
-<div *ngIf="erfolgsmeldung">
-    <p>
-        {{ erfolgsmeldung }}
-    </p>
+<div *ngIf="!zeigeEingabefeld">
+    <div *ngIf="erfolgsmeldung">
+        <p>
+            {{ erfolgsmeldung }}
+        </p>
+    </div>
+    <div class="nochmal-button">
+        <button mat-raised-button (click)="resetZeigeEingabefeld()">
+            Details zu anderer Person anzeigen.
+        </button>
+    </div>
+
+    <div *ngIf="mitVerbindungenPerson">
+        @if(mitVerbindungenPerson.eltern && mitVerbindungenPerson.eltern.length > 0){
+        <mat-divider></mat-divider>
+        <h4>Eltern</h4>
+        <div class="horizontal-scroll-container">
+            @for(eltern of mitVerbindungenPerson.eltern; track eltern.id){
+            <div class="person-card-wrapper">
+                <app-display-person [person]="eltern" (personClicked)="handlePersonClick($event)">
+                </app-display-person>
+            </div>
+            }
+        </div>
+        }
+
+        <mat-divider></mat-divider>
+        <h4>Gesuchte Person @if(mitVerbindungenPerson.ehepartner && mitVerbindungenPerson.ehepartner.length > 0){ und
+            Ehepartner}</h4>
+
+        <div class="horizontal-scroll-container">
+            <div class="person-card-wrapper">
+                <app-display-person [person]="mitVerbindungenPerson.bezugsperson"
+                    (personClicked)="handlePersonClick($event)" [highlightColor]="'cornflowerblue'">
+                </app-display-person>
+            </div>
+
+            @if(mitVerbindungenPerson.ehepartner && mitVerbindungenPerson.ehepartner.length > 0){
+            @for(ehepartner of mitVerbindungenPerson.ehepartner; track ehepartner.id){
+            <div class="person-card-wrapper">
+                <app-display-person [person]="ehepartner" (personClicked)="handlePersonClick($event)">
+                </app-display-person>
+            </div>
+            }
+            }
+        </div>
+
+        @if(mitVerbindungenPerson.kinder && mitVerbindungenPerson.kinder.length > 0){
+        <mat-divider></mat-divider>
+        <h4>Kinder</h4>
+
+        <div class="horizontal-scroll-container">
+            @for(kinder of mitVerbindungenPerson.kinder; track kinder.id){
+            <div class="person-card-wrapper">
+                <app-display-person [person]="kinder" (personClicked)="handlePersonClick($event)">
+                </app-display-person>
+            </div>
+            }
+        </div>
+        }
+        <mat-divider></mat-divider>
+    </div>
 </div>
+
+
 <div *ngIf="fehlermeldung">
     <p>
         {{ fehlermeldung }}

@@ -6,6 +6,10 @@
     width: 90%;
 }
 
+.nochmal-button {
+    margin: 25px;
+}
+
 .form-group-element {
     .form-box {
         display: grid;

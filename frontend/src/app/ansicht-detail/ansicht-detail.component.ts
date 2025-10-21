@@ -20,6 +20,7 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
   allePersonen: Person[] = [];
   suchErgebnisse: Person[] = [];
   gefundenePerson: Person | null = null;
+  zeigeEingabefeld: boolean = true;
   mitVerbindungenPerson: PersonMitVerbindungen | null = null;
   apiUrlPersonZumSuchem: string = "api/verbindungen"
   erfolgsmeldung: string = '';
@@ -45,6 +46,10 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  resetZeigeEingabefeld(): void {
+    this.zeigeEingabefeld = true;
   }
 
   setupSuche(): void {
@@ -116,6 +121,7 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
             this.mitVerbindungenPerson = response;
             this.entferneVerbindung();
             this.suchePersonForm.reset()
+            this.zeigeEingabefeld = false;
             this.isLoading = false;
           },
           error: (error: HttpErrorResponse) => {
