@@ -8,7 +8,7 @@ def leseVerbindungen(driver, bezugsperson: PersonConnection):
                             nachname: $nachname,
                             geburtstag: $geburtstag,
                             tenant: $tenant
-                            }) RETURN id(p) AS id, (p)"""
+                            }) RETURN elementId(p) AS id, (p)"""
 
         result = session.run(
             query,
@@ -43,7 +43,7 @@ def leseVerbindungen(driver, bezugsperson: PersonConnection):
                             nachname: $nachname,
                             geburtstag: $geburtstag,
                             tenant: $tenant
-                            })-[r:rel_kind]->(p: person) RETURN  id(p) AS id, (p)"""
+                            })-[r:rel_kind]->(p: person) RETURN  elementId(p) AS id, (p)"""
 
         result_1 = session.run(
             query_1,
@@ -81,7 +81,7 @@ def leseVerbindungen(driver, bezugsperson: PersonConnection):
                             nachname: $nachname,
                             geburtstag: $geburtstag,
                             tenant: $tenant
-                            })-[r:rel_elternteil]->(p: person) RETURN  id(p) AS id, (p)"""
+                            })-[r:rel_elternteil]->(p: person) RETURN  elementId(p) AS id, (p)"""
 
         result_2 = session.run(
             query_2,
@@ -119,7 +119,7 @@ def leseVerbindungen(driver, bezugsperson: PersonConnection):
                             nachname: $nachname,
                             geburtstag: $geburtstag,
                             tenant: $tenant
-                            })-[r:rel_ehepartner]->(p: person) RETURN  id(p) AS id, (p)"""
+                            })-[r:rel_ehepartner]->(p: person) RETURN  elementId(p) AS id, (p)"""
 
         result_3 = session.run(
             query_3,

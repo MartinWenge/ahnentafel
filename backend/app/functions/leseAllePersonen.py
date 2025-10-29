@@ -4,7 +4,7 @@ def leseAllePersonen(driver, tenant):
     with driver.session() as session:
             query = """MATCH (p:person {
                                 tenant: $tenantIn
-                                }) RETURN id(p) AS id, p"""
+                                }) RETURN elementId(p) AS id, p"""
             result = session.run(query, tenantIn=tenant)
             persons = []
             for record in result:

@@ -9,7 +9,7 @@ class PersonConnection(BaseModel):
     tenant: str = Field(..., description="guid für die Zuordnung des aktuellen tenant")
 
 class PersonIn(BaseModel):
-    id: Optional[int] = Field(None, description="Id der Person in der Datenbank")
+    id: Optional[str] = Field(None, description="Id der Person in der Datenbank")
     tenant: str = Field(..., description="guid für die Zuordnung des aktuellen tenant")
     vorname: str = Field(..., description="Vorname der Person")
     nachname: str = Field(..., description="Nachname der Person")
@@ -24,7 +24,7 @@ class PersonIn(BaseModel):
     verbindungsart: str = Field(..., description="Verbindungstyp: KIND, ELTERNTEIL, EHEPARTNER")
 
 class PersonOut(BaseModel):
-    id: int
+    id: str
     tenant: str
     vorname: str
     nachname: str
