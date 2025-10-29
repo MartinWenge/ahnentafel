@@ -11,12 +11,14 @@ from models.person import (
     PersonenZumVerbinden,
     PersonMitVerbindungen,
 )
+from models.graphen import StammbaumGraph
 from functions.leseAllePersonen import leseAllePersonen
 from functions.erstelleNeuePerson import erstelleNeuePerson
 from functions.loeschePerson import loeschePerson
 from functions.loescheVerbindung import loescheVerbindung
 from functions.leseVerbindungen import leseVerbindungen
 from functions.erstelleNeueVerbindung import erstelleNeueVerbindung
+from functions.findeStammbaumGraph import findeStammbaumGraph
 
 NEO4J_USER: str = os.environ.get("NEO4J_USER", "neo4j")
 NEO4J_URI: str = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
@@ -67,6 +69,17 @@ async def alle_personen(
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
 
 
+@app.get("/api/stammbaum", response_model=StammbaumGraph)
+async def lese_stammbaum(
+    tenant: str = Query(..., description="Kunden ID des aktuellen tenants")
+):
+    try:
+        stammbaum = findeStammbaumGraph(driver, tenant)
+        return stammbaum
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{e}")
+
+
 @app.post("/api/neueperson")
 async def neue_person(person_in: PersonIn):
     try:
@@ -96,6 +109,7 @@ async def delete_person(person: PersonConnection):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
 
+
 @app.post("/api/deleteverbindung")
 async def delete_verbindung(verbindung: PersonenZumVerbinden):
     try:
@@ -103,6 +117,7 @@ async def delete_verbindung(verbindung: PersonenZumVerbinden):
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
+
 
 @app.get("/api/verbindungen")
 async def get_verbindungen(
