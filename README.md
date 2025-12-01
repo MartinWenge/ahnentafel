@@ -1,6 +1,8 @@
-# Minimalexperiment Webapp mit Neo4j, FastAPI und Angular in Docker
+# Webapp mit Neo4j, FastAPI und Angular in Docker
 
-Dieses Projekt demonstriert einen minimalen Setup für eine Webanwendung, die eine Neo4j-Datenbank im Backend (FastAPI) nutzt und ein Angular-Frontend bereitstellt. Alle drei Komponenten laufen in separaten Docker-Containern.
+Dieses Projekt ist eine Webanwendung, die eine Neo4j-Datenbank im Backend (FastAPI) nutzt und ein Angular-Frontend bereitstellt. Alle drei Komponenten laufen in separaten Docker-Containern.
+
+Die Anwendung unterstützt beim gemeinsamen Aufbau eines Stammbaumes (Ahnentafel).
 
 ## Voraussetzungen
 

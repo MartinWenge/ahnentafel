@@ -4,6 +4,8 @@ import { UebersichtComponent } from './uebersicht.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { ApiConfigService } from '../services/api-config.service';
+import { PersonenlisteBereitstellenService } from '../services/personenliste-bereitstellen.service';
+import { StammbaumBereitstellenService } from '../services/stammbaum-bereitstellen.service';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { ApiConfigService } from '../services/api-config.service';
     UebersichtComponent
   ],
   providers: [
-    ApiConfigService
+    ApiConfigService,
+    PersonenlisteBereitstellenService,
+    StammbaumBereitstellenService
   ]
 })
 export class UebersichtModule { }
