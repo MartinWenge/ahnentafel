@@ -78,7 +78,7 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
   }
 
   resetPersonendatenKorrigiert(): void {
-    this.verbindungIstGeloest = false;
+    this.personendatenKorrigiert = false;
   }
 
   ngOnInit(): void {
