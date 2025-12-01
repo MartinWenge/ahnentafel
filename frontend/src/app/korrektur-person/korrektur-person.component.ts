@@ -4,6 +4,7 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { debounceTime, distinctUntilChanged, map, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { ApiConfigService } from '../services/api-config.service';
+import { LoginService } from '../services/login.service';
 import { PersonenlisteBereitstellenService } from '../services/personenliste-bereitstellen.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -19,29 +20,46 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
   suchErgebnisse: Person[] = [];
   suchErgebnis1: Person[] = [];
   suchErgebnis2: Person[] = [];
+  suchErgebnis3: Person[] = [];
   ausgewaehltePerson: Person | null = null;
   gefundenePerson1: Person | null = null;
   gefundenePerson2: Person | null = null;
+  gefundenePerson3: Person | null = null;
   loeschenForm: FormGroup;
   loeseVerbindungForm: FormGroup;
+  korrigierePersonForm: FormGroup;
   private destroy$ = new Subject<void>();
   isLoading: boolean = false;
   selectedCorrectionType: string = "";
-  apiUrlPersonLoeschen: string = "api/deleteperson";
   apiUrlPersonZumSuchem: string = "api/verbindungen";
+  apiUrlPersonLoeschen: string = "api/deleteperson";
   apiUrlVerbindungZumLoesen: string = "api/deleteverbindung";
+  apiUrlKorrigierePerson: string = "api/korrekturperson";
   erfolgsmeldung: string = '';
   fehlermeldung: string = '';
   personIstGeloescht: boolean = false;
   verbindungIstGeloest: boolean = false;
+  personendatenKorrigiert: boolean = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private personenBereitstellen: PersonenlisteBereitstellenService) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private apiConfig: ApiConfigService, private personenBereitstellen: PersonenlisteBereitstellenService, private loginService: LoginService) {
     this.loeschenForm = this.fb.group({
       personLoeschen: ['', Validators.required],
     }),
       this.loeseVerbindungForm = this.fb.group({
         person1: ['', Validators.required],
         person2: ['', Validators.required]
+      }),
+      this.korrigierePersonForm = this.fb.group({
+        personKorrigieren: ['', Validators.required],
+        vorname: ['', Validators.required],
+        nachname: ['', Validators.required],
+        geburtsname: [''],
+        geschlecht: ['', Validators.required],
+        geburtstag: ['', Validators.required],
+        geburtsort: [''],
+        todestag: [null],
+        todesort: [''],
+        beruf: ['']
       })
   }
 
@@ -59,6 +77,10 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
     this.verbindungIstGeloest = false;
   }
 
+  resetPersonendatenKorrigiert(): void {
+    this.verbindungIstGeloest = false;
+  }
+
   ngOnInit(): void {
     this.personenBereitstellen.getAllePersonen()
       .pipe(takeUntil(this.destroy$))
@@ -68,6 +90,7 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
         this.setupSuche();
         this.setupSuche1();
         this.setupSuche2();
+        this.setupSuche3();
       });
   }
 
@@ -113,6 +136,18 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
       })
   }
 
+  setupSuche3(): void {
+    this.korrigierePersonForm.controls['personKorrigieren'].valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+        map(term => term ? this.filterPersonen(term) : [])
+      ).subscribe(ergebnisse => {
+        this.suchErgebnis3 = ergebnisse
+      })
+  }
+
   filterPersonen(term: string): Person[] {
     term = term.toLowerCase();
     return this.allePersonen.filter(person =>
@@ -145,6 +180,13 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
     if (event.target instanceof HTMLInputElement) {
       const inputValue = event.target.value;
       this.loeseVerbindungForm.controls['person2'].setValue(inputValue);
+    }
+  }
+
+  onInputChange3(event: Event): void {
+    if (event.target instanceof HTMLInputElement) {
+      const inputValue = event.target.value;
+      this.korrigierePersonForm.controls['personKorrigieren'].setValue(inputValue);
     }
   }
 
@@ -223,6 +265,23 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
     this.suchErgebnis2 = [];
   }
 
+  selectPerson3(person: Person): void {
+    this.gefundenePerson3 = person;
+    this.korrigierePersonForm.patchValue({
+      personKorrigieren: `${person.vorname} ${person.nachname}, ${new Date(person.geburtstag).toLocaleDateString()}`
+    })
+    this.suchErgebnis3 = [];
+    this.korrigierePersonForm.patchValue({ vorname: person.vorname });
+    this.korrigierePersonForm.patchValue({ nachname: person.nachname });
+    this.korrigierePersonForm.patchValue({ geschlecht: person.geschlecht });
+    this.korrigierePersonForm.patchValue({ geburtsname: person.geburtsname });
+    this.korrigierePersonForm.patchValue({ geburtstag: person.geburtstag });
+    this.korrigierePersonForm.patchValue({ geburtsort: person.geburtsort });
+    this.korrigierePersonForm.patchValue({ todestag: person.todestag });
+    this.korrigierePersonForm.patchValue({ todesort: person.todesort });
+    this.korrigierePersonForm.patchValue({ beruf: person.beruf });
+  }
+
   setzeGefundenePersonZurueck(): void {
     this.ausgewaehltePerson = null;
     this.loeschenForm.patchValue({ personLoeschen: null });
@@ -234,6 +293,11 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
     this.connectionsErstePerson = [];
     this.loeseVerbindungForm.patchValue({ person1: null });
     this.loeseVerbindungForm.patchValue({ person2: null });
+  }
+
+  setzeGefundenePersonZurueck2(): void {
+    this.gefundenePerson3 = null;
+    this.korrigierePersonForm.patchValue({ personKorrigieren: null });
   }
 
   onSubmitLoeschePerson(): void {
@@ -310,6 +374,7 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
               this.setupSuche();
               this.setupSuche1();
               this.setupSuche2();
+              this.setupSuche3();
               this.verbindungIstGeloest = true;
               this.isLoading = false;
             });
@@ -317,6 +382,58 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
           error: (error) => {
             console.error('Fehler beim Lösen der Verbindung')
             this.fehlermeldung = 'Fehler beim Lösen der Verbindung';
+            this.erfolgsmeldung = '';
+            this.isLoading = false;
+          }
+        });
+
+    } else {
+      this.fehlermeldung = 'Bitte fülle alle erforderlichen Felder aus.';
+      this.erfolgsmeldung = '';
+    }
+  }
+
+  onSubmitKorrigierePerson(): void {
+    if (this.korrigierePersonForm.valid) {
+      this.isLoading = true;
+
+      const tenant = this.loginService.getTenantId();
+      const originId = this.gefundenePerson3 ? this.gefundenePerson3.id : undefined;
+      const korrekturPerson: Person = {
+        id: originId,
+        tenant: tenant === null ? undefined : tenant,
+        vorname: this.korrigierePersonForm.controls["vorname"].value,
+        nachname: this.korrigierePersonForm.controls["nachname"].value,
+        geburtstag: this.korrigierePersonForm.controls["geburtstag"].value,
+        geburtsort: this.korrigierePersonForm.controls["geburtsort"].value,
+        geburtsname: this.korrigierePersonForm.controls["geburtsname"].value,
+        geschlecht: this.korrigierePersonForm.controls["geschlecht"].value,
+        beruf: this.korrigierePersonForm.controls["beruf"].value,
+        todestag: this.korrigierePersonForm.controls["todestag"].value,
+        todesort: this.korrigierePersonForm.controls["todesort"].value
+      }
+
+      this.http.post<Person>(this.apiConfig.apiUrl + this.apiUrlKorrigierePerson, korrekturPerson)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            this.erfolgsmeldung = `${korrekturPerson.vorname} ${korrekturPerson.nachname} erfolgreich korrigiert!`;
+            this.fehlermeldung = '';
+            this.korrigierePersonForm.reset();
+            this.gefundenePerson3 = null;
+            this.personenBereitstellen.invalidateCache();
+            this.personenBereitstellen.getAllePersonen().subscribe(updatedPersonen => {
+              this.allePersonen = updatedPersonen;
+              this.setupSuche();
+              this.setupSuche1();
+              this.setupSuche2();
+              this.setupSuche3();
+              this.personendatenKorrigiert = true;
+              this.isLoading = false;
+            });
+          },
+          error: (error) => {
+            this.fehlermeldung = 'Fehler bei der Korrektur der Person.';
             this.erfolgsmeldung = '';
             this.isLoading = false;
           }

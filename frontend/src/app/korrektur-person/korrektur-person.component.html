@@ -4,6 +4,7 @@
     (valueChange)="onCorrectionTypeChange($event)">
     <mat-button-toggle value="delete">Person löschen</mat-button-toggle>
     <mat-button-toggle value="disconnect">Verbindung lösen</mat-button-toggle>
+    <mat-button-toggle value="change">Person bearbeiten</mat-button-toggle>
 </mat-button-toggle-group>
 
 <div *ngIf="selectedCorrectionType === 'delete'">
@@ -51,8 +52,7 @@
 
                 </div>
                 <div class="form-group-element">
-                    <button mat-raised-button type="submit" [disabled]="loeschenForm.invalid"
-                        [disabled]="loeschenForm.invalid || isLoading">
+                    <button mat-raised-button type="submit" [disabled]="loeschenForm.invalid || isLoading">
                         {{ isLoading ? 'Wird gesendet...' : 'Person löschen' }}
                     </button>
                 </div>
@@ -143,6 +143,151 @@
                             {{ isLoading ? 'Wird gesendet...' : 'Verbindung lösen' }}
                         </button>
                     </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div *ngIf="fehlermeldung">
+        {{ fehlermeldung }}
+    </div>
+</div>
+
+<div *ngIf="selectedCorrectionType === 'change'">
+    <h2>Personendaten korrigieren</h2>
+    <div *ngIf="personendatenKorrigiert">
+        <div *ngIf="erfolgsmeldung">
+            {{ erfolgsmeldung }}
+        </div>
+        <div class="nochmal-button">
+            <button mat-raised-button (click)="resetPersonendatenKorrigiert()">
+                Weitere Person bearbeiten
+            </button>
+        </div>
+    </div>
+    <div *ngIf="!personendatenKorrigiert">
+        <form [formGroup]="korrigierePersonForm" (ngSubmit)="onSubmitKorrigierePerson()">
+            <div *ngIf="isLoading" class="loading-spinner">
+                <mat-spinner></mat-spinner>
+                <p>Verarbeitung ...</p>
+            </div>
+            <div *ngIf="!isLoading">
+                <div class="form-group-element">
+                    <p>Wähle die Person aus, die du bearbeiten möchtest</p>
+                    <mat-form-field class="input-full-width">
+                        <mat-label>Vorhandene Person</mat-label>
+                        <input matInput type="text" id="personKorrigieren" formControlName="personKorrigieren"
+                            (input)="onInputChange3($event)"
+                            [value]="korrigierePersonForm.controls['personKorrigieren'].value">
+                    </mat-form-field>
+                    @if(korrigierePersonForm.controls['personKorrigieren'].hasError('required') &&
+                    (korrigierePersonForm.controls['personKorrigieren'].dirty ||
+                    korrigierePersonForm.controls['personKorrigieren'].touched)){
+                    <mat-error>Eine zu bearbeitende Person muss ausgewählt werden</mat-error>
+                    }
+                    <mat-action-list *ngIf="suchErgebnis3.length > 0">
+                        @for (person of suchErgebnis3; track person.id) {
+                        <button mat-list-item (click)="selectPerson3(person)">
+                            {{ person.vorname }} {{ person.nachname }}, {{ person.geburtstag | date: 'dd.MM.yyyy' }}
+                        </button>
+                        }
+                    </mat-action-list>
+
+                    <button mat-button type="button" (click)="setzeGefundenePersonZurueck2()" *ngIf="gefundenePerson3">
+                        Eine andere Person auswählen
+                    </button>
+                </div>
+
+                <div *ngIf="gefundenePerson3">
+                    <h3>{{ gefundenePerson3.vorname }} {{ gefundenePerson3.nachname }}</h3>
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Vorname</mat-label>
+                            <input matInput type="text" id="vorname" formControlName="vorname" required>
+                        </mat-form-field>
+                        @if(korrigierePersonForm.controls['vorname'].hasError('required') &&
+                        (korrigierePersonForm.controls['vorname'].dirty ||
+                        korrigierePersonForm.controls['vorname'].touched)){
+                        <mat-error>Vorname ist erforderlich!</mat-error>
+                        }
+                    </div>
+
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Nachname</mat-label>
+                            <input matInput type="text" id="nachname" formControlName="nachname" required>
+                        </mat-form-field>
+                        @if(korrigierePersonForm.controls['nachname'].hasError('required') &&
+                        (korrigierePersonForm.controls['nachname'].dirty ||
+                        korrigierePersonForm.controls['nachname'].touched)){
+                        <mat-error>Nachname ist erforderlich!</mat-error>
+                        }
+                    </div>
+
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Geburtsname</mat-label>
+                            <input matInput type="text" id="geburtsname" formControlName="geburtsname">
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <mat-radio-group aria-label="Geschlecht auswählen" formControlName="geschlecht">
+                            <mat-radio-button value="m">männlich</mat-radio-button>
+                            <mat-radio-button value="w">weiblich</mat-radio-button>
+                        </mat-radio-group>
+                        @if(korrigierePersonForm.controls['geschlecht'].hasError('required') &&
+                        (korrigierePersonForm.controls['geschlecht'].dirty
+                        ||
+                        korrigierePersonForm.controls['geschlecht'].touched)){
+                        <mat-error>Geschlecht ist erforderlich!</mat-error>
+                        }
+                    </div>
+
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Geburtstag</mat-label>
+                            <input matInput type="date" id="geburtstag" formControlName="geburtstag" required>
+                        </mat-form-field>
+                        @if(korrigierePersonForm.controls['geburtstag'].hasError('required') &&
+                        (korrigierePersonForm.controls['geburtstag'].dirty ||
+                        korrigierePersonForm.controls['geburtstag'].touched)){
+                        <mat-error>Geburtstag ist erforderlich!</mat-error>
+                        }
+                    </div>
+
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Geburtsort</mat-label>
+                            <input matInput type="text" id="geburtsort" formControlName="geburtsort">
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Beruf</mat-label>
+                            <input matInput type="text" id="beruf" formControlName="beruf">
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Sterbedatum</mat-label>
+                            <input matInput type="date" id="todestag" formControlName="todestag">
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <mat-form-field class="input-full-width">
+                            <mat-label>Sterbeort</mat-label>
+                            <input matInput type="text" id="todesort" formControlName="todesort">
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <div class="form-group-element">
+                    <button mat-raised-button type="submit" [disabled]="korrigierePersonForm.invalid || isLoading">
+                        {{ isLoading ? 'Wird gesendet...' : 'Person bearbeiten' }}
+                    </button>
                 </div>
             </div>
         </form>

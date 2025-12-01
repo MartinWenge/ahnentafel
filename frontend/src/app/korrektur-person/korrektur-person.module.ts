@@ -7,8 +7,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatInputModule} from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule} from '@angular/material/form-field';
+import { LoginService } from '../services/login.service';
 
 @NgModule({
   declarations: [
@@ -22,13 +24,15 @@ import { MatFormFieldModule} from '@angular/material/form-field';
     MatButtonToggleModule,
     MatProgressSpinner,
     MatInputModule,
+    MatRadioModule,
     MatButtonModule
   ],
   exports: [
     KorrekturPersonComponent
   ],
   providers: [
-    ApiConfigService
+    ApiConfigService,
+    LoginService
   ]
 })
 export class KorrekturPersonModule { }

@@ -19,6 +19,7 @@ from functions.loescheVerbindung import loescheVerbindung
 from functions.leseVerbindungen import leseVerbindungen
 from functions.erstelleNeueVerbindung import erstelleNeueVerbindung
 from functions.findeStammbaumGraph import findeStammbaumGraph
+from functions.korrigierePerson import korrigierePerson
 
 NEO4J_USER: str = os.environ.get("NEO4J_USER", "neo4j")
 NEO4J_URI: str = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
@@ -117,6 +118,14 @@ async def delete_verbindung(verbindung: PersonenZumVerbinden):
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
+    
+@app.post("/api/korrekturperson")
+async def fix_person(person: PersonOut):
+    try:
+        response = korrigierePerson(driver, person)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Backendfehler: {e}")
 
 
 @app.get("/api/verbindungen")
