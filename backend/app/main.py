@@ -23,6 +23,7 @@ from functions.findeStammbaumGraph import findeStammbaumGraph
 from functions.korrigierePerson import korrigierePerson
 from functions.einloggen import einloggen
 from functions.nutzerVerwalten import nutzer_verwalten_loeschen, nutzer_verwalten_neu
+from utility.security import CurrentUser
 
 NEO4J_USER: str = os.environ.get("NEO4J_USER", "neo4j")
 NEO4J_URI: str = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
@@ -41,8 +42,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Erlaubt alle HTTP-Methoden (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],  # Erlaubt alle Header
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"]
 )
 
 
@@ -51,35 +52,27 @@ def close_driver():
         driver.close()
 
 
-@app.get("/api/accesstoken")
-async def get_verbindungen(
-    token: str = Query(..., description="vom Benutzer eingegebener Token")
-):
-    validToken = "12stelligerT"
-    if token == validToken:
-        return {"tenantId": "b50d4bb8-e6a0-4015-afed-115f4e0d9d35"}
-    else:
-        raise HTTPException(status_code=401, detail="Token invalide")
-
-
 @app.post("/api/login", response_model=UserOut)
 async def login(user_in: UserIn):
+    # {"tenantId": "b50d4bb8-e6a0-4015-afed-115f4e0d9d35"}
     try:
         response = einloggen(driver, user_in)
         return response
     except Exception as e:
         raise HTTPException(status_code=401, detail="Login fehlgeschlagen")
-    
+
+
 @app.post("/api/addnutzer")
-async def neuer_nutzer(user_neu: UserLocal):
+async def neuer_nutzer(token: CurrentUser, user_neu: UserLocal):
     try:
         response = nutzer_verwalten_neu(driver, user_neu)
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail="Nutzer anlegen fehlgeschlagen")
-    
+
+
 @app.post("/api/deletenutzer")
-async def neuer_nutzer(user_alt: UserLocal):
+async def neuer_nutzer(token: CurrentUser, user_alt: UserLocal):
     try:
         response = nutzer_verwalten_loeschen(driver, user_alt)
         return response
@@ -89,7 +82,8 @@ async def neuer_nutzer(user_alt: UserLocal):
 
 @app.get("/api/personen", response_model=List[PersonOut])
 async def alle_personen(
-    tenant: str = Query(..., description="Kunden ID des aktuellen tenants")
+    token: CurrentUser,
+    tenant: str = Query(..., description="Kunden ID des aktuellen tenants"),
 ):
     try:
         persons = leseAllePersonen(driver, tenant)
@@ -100,7 +94,8 @@ async def alle_personen(
 
 @app.get("/api/stammbaum", response_model=StammbaumGraph)
 async def lese_stammbaum(
-    tenant: str = Query(..., description="Kunden ID des aktuellen tenants")
+    token: CurrentUser,
+    tenant: str = Query(..., description="Kunden ID des aktuellen tenants"),
 ):
     try:
         stammbaum = findeStammbaumGraph(driver, tenant)
@@ -110,7 +105,7 @@ async def lese_stammbaum(
 
 
 @app.post("/api/neueperson")
-async def neue_person(person_in: PersonIn):
+async def neue_person(token: CurrentUser, person_in: PersonIn):
     try:
         response = erstelleNeuePerson(driver, person_in)
         return response
@@ -122,7 +117,7 @@ async def neue_person(person_in: PersonIn):
 
 
 @app.post("/api/neueverbindung")
-async def neue_verbindung(persons: PersonenZumVerbinden):
+async def neue_verbindung(token: CurrentUser, persons: PersonenZumVerbinden):
     try:
         response = erstelleNeueVerbindung(driver, persons)
         return response
@@ -131,7 +126,7 @@ async def neue_verbindung(persons: PersonenZumVerbinden):
 
 
 @app.post("/api/deleteperson")
-async def delete_person(person: PersonConnection):
+async def delete_person(person: PersonConnection, token: CurrentUser):
     try:
         response = loeschePerson(driver, person)
         return response
@@ -140,7 +135,7 @@ async def delete_person(person: PersonConnection):
 
 
 @app.post("/api/deleteverbindung")
-async def delete_verbindung(verbindung: PersonenZumVerbinden):
+async def delete_verbindung(verbindung: PersonenZumVerbinden, token: CurrentUser):
     try:
         response = loescheVerbindung(driver, verbindung)
         return response
@@ -149,7 +144,7 @@ async def delete_verbindung(verbindung: PersonenZumVerbinden):
 
 
 @app.post("/api/korrekturperson")
-async def fix_person(person: PersonOut):
+async def fix_person(person: PersonOut, token: CurrentUser):
     try:
         response = korrigierePerson(driver, person)
         return response
@@ -159,6 +154,7 @@ async def fix_person(person: PersonOut):
 
 @app.get("/api/verbindungen")
 async def get_verbindungen(
+    token: CurrentUser,
     vorname: str = Query(..., description="Vorname der Bezugsperson"),
     nachname: str = Query(..., description="Nachname der Bezugsperson"),
     geburtstag: date = Query(

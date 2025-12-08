@@ -13,6 +13,7 @@ class UserLocal(BaseModel):
 class UserOut(BaseModel):
     username: str = Field(..., description="Nutzername")
     tenant: str = Field(..., description="Kundenkennung")
+    token: str = Field(..., description="JWT")
 
 class Hasher():
     @staticmethod
