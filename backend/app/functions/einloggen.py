@@ -1,7 +1,6 @@
 from fastapi import HTTPException
 from models.user import (
     UserIn,
-    UserLocal,
     UserOut,
     Hasher
 )

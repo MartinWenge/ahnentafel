@@ -1,46 +1,51 @@
 import { Injectable } from '@angular/core';
 import { ApiConfigService } from './api-config.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, tap, catchError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject, of, map, catchError } from 'rxjs';
+import { UserIn, UserOut } from '../models/user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-
-  private readonly apiUrlGetValidateAccessToken = 'api/accesstoken';
+  private readonly apiUrlValidateUser = 'api/login';
   private tenantIdSubject = new BehaviorSubject<string | null>(null);
   tenantId$: Observable<string | null> = this.tenantIdSubject.asObservable();
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) {
-    const storedTenantId = localStorage.getItem('tenantId');
+    const storedTenantId = sessionStorage.getItem('tenantId');
     if (storedTenantId) {
       this.tenantIdSubject.next(storedTenantId);
     }
   }
 
   /**
-   * Validiert den Token und empfängt die tenantId vom Backend.
-   * @param token Der zu validierende Token.
+   * Validiert die Nutzername und empfängt die tenantId vom Backend.
    * @returns Ein Observable, das die tenantId enthält oder null bei Fehler.
    */
-  validateToken(token: string): Observable<{ tenantId: string } | null> {
-    let parameter = new HttpParams();
-    parameter = parameter.set('token', token);
-    return this.http.get<{ tenantId: string }>(this.apiConfig.apiUrl + this.apiUrlGetValidateAccessToken, { params: parameter})
-    .pipe(
-      tap(response => {
-        if (response && response.tenantId) {
-          this.tenantIdSubject.next(response.tenantId);
-          localStorage.setItem('tenantId', response.tenantId);
-        }
-      }),
-      catchError(error => {
-        console.error('Login failed:', error);
-        this.logout();
-        return of(null);
-      })
-    )
+  validateToken(username: string, password: string): Observable<{ user: UserOut } | null> {
+    let user_in: UserIn = {
+      username: username,
+      password: password
+    };
+
+    return this.http.post<UserOut>(this.apiConfig.apiUrl + this.apiUrlValidateUser, user_in)
+      .pipe(
+        map(response => {
+          if (response && response.tenant) {
+            this.tenantIdSubject.next(response.tenant);
+            sessionStorage.setItem('tenantId', response.tenant);
+            return { user: response };
+          } else {
+            return null;
+          }
+        }),
+        catchError(error => {
+          console.error('Login failed:', error);
+          this.logout();
+          return of(null);
+        })
+      );
   }
 
   isLoggedIn(): boolean {
@@ -53,6 +58,6 @@ export class LoginService {
 
   logout(): void {
     this.tenantIdSubject.next(null);
-    localStorage.removeItem('tenantId');
+    sessionStorage.removeItem('tenantId');
   }
 }

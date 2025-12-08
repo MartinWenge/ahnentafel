@@ -16,9 +16,8 @@ export class LoginComponent {
 
   constructor(private fb: FormBuilder, private loginService: LoginService){
     this.loginForm = this.fb.group({
-      tokenInput: ['', [Validators.required,
-          Validators.minLength(12),
-          Validators.maxLength(12)]]
+      usernameInput: ['', [Validators.required]],
+      passwordInput: ['', [Validators.required]]
     })
   }
 
@@ -27,14 +26,15 @@ export class LoginComponent {
       this.fehlermeldung = '';
       this.erfolgsmeldung = '';
       this.isLoading = true;
-      const token = this.loginForm.get('tokenInput')?.value;
+      const username = this.loginForm.get('usernameInput')?.value;
+      const password = this.loginForm.get('passwordInput')?.value;
 
-      this.loginService.validateToken(token).subscribe({
+      this.loginService.validateToken(username, password).subscribe({
         next: response => {
-          if (response && response.tenantId) {
+          if (response && response.user) {
             this.erfolgsmeldung = "Login erfolgreich";
           } else {
-            this.fehlermeldung = 'Ungültiger Token oder Login fehlgeschlagen.';
+            this.fehlermeldung = 'Login fehlgeschlagen.';
           }
           this.loginForm.reset();
           this.isLoading = false;

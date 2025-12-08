@@ -1,5 +1,5 @@
 <h2>Login</h2>
-<p>Wenn du einen Token erhalten hast, melde dich jetzt mit diesem an.</p>
+<p>Wenn du bereits Zugangsdaten erhalten hast, melde dich jetzt mit diesen an.</p>
 
 <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <div *ngIf="isLoading" class="loading-spinner">
@@ -7,15 +7,29 @@
         <p>Verarbeitung ...</p>
     </div>
     <div *ngIf="!isLoading">
-        <mat-form-field class="input-full-width">
-            <mat-label>Zugangs-Token</mat-label>
-            <input matInput type="password" id="tokenInput" formControlName="tokenInput">
+        <div>
+            <mat-form-field class="input-full-width">
+            <mat-label>Nutzername</mat-label>
+            <input matInput type="text" id="usernameInput" formControlName="usernameInput">
         </mat-form-field>
-        @if(loginForm.controls['tokenInput'].hasError('required') &&
-        (loginForm.controls['tokenInput'].dirty ||
-        loginForm.controls['tokenInput'].touched)){
-        <mat-error>Ein 12-stelliger Token muss eingegeben werden.</mat-error>
+        @if(loginForm.controls['usernameInput'].hasError('required') &&
+        (loginForm.controls['usernameInput'].dirty ||
+        loginForm.controls['usernameInput'].touched)){
+        <mat-error>Ein Nutzername muss eingegeben werden.</mat-error>
         }
+        </div>
+        <div>
+            <mat-form-field class="input-full-width">
+            <mat-label>Passwort</mat-label>
+            <input matInput type="password" id="passwordInput" formControlName="passwordInput">
+        </mat-form-field>
+        @if(loginForm.controls['passwordInput'].hasError('required') &&
+        (loginForm.controls['passwordInput'].dirty ||
+        loginForm.controls['passwordInput'].touched)){
+        <mat-error>Ein Passwort eingegeben werden.</mat-error>
+        }
+        </div>
+        
     </div>
     <button mat-raised-button type="submit" [disabled]="loginForm.invalid || isLoading">
         {{ isLoading ? 'Wird gesendet...' : 'Login' }}
