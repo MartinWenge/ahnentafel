@@ -11,6 +11,7 @@ from models.person import (
     PersonenZumVerbinden,
     PersonMitVerbindungen,
 )
+from models.user import UserIn, UserOut, UserLocal
 from models.graphen import StammbaumGraph
 from functions.leseAllePersonen import leseAllePersonen
 from functions.erstelleNeuePerson import erstelleNeuePerson
@@ -20,6 +21,8 @@ from functions.leseVerbindungen import leseVerbindungen
 from functions.erstelleNeueVerbindung import erstelleNeueVerbindung
 from functions.findeStammbaumGraph import findeStammbaumGraph
 from functions.korrigierePerson import korrigierePerson
+from functions.einloggen import einloggen
+from functions.nutzerVerwalten import nutzer_verwalten_loeschen, nutzer_verwalten_neu
 
 NEO4J_USER: str = os.environ.get("NEO4J_USER", "neo4j")
 NEO4J_URI: str = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
@@ -57,6 +60,31 @@ async def get_verbindungen(
         return {"tenantId": "b50d4bb8-e6a0-4015-afed-115f4e0d9d35"}
     else:
         raise HTTPException(status_code=401, detail="Token invalide")
+
+
+@app.post("/api/login", response_model=UserOut)
+async def login(user_in: UserIn):
+    try:
+        response = einloggen(driver, user_in)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Login fehlgeschlagen")
+    
+@app.post("/api/addnutzer")
+async def neuer_nutzer(user_neu: UserLocal):
+    try:
+        response = nutzer_verwalten_neu(driver, user_neu)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Nutzer anlegen fehlgeschlagen")
+    
+@app.post("/api/deletenutzer")
+async def neuer_nutzer(user_alt: UserLocal):
+    try:
+        response = nutzer_verwalten_loeschen(driver, user_alt)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Nutzer löschen fehlgeschlagen")
 
 
 @app.get("/api/personen", response_model=List[PersonOut])
@@ -118,7 +146,8 @@ async def delete_verbindung(verbindung: PersonenZumVerbinden):
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
-    
+
+
 @app.post("/api/korrekturperson")
 async def fix_person(person: PersonOut):
     try:
