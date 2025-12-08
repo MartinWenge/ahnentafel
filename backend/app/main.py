@@ -43,7 +43,7 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"]
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 
@@ -54,7 +54,6 @@ def close_driver():
 
 @app.post("/api/login", response_model=UserOut)
 async def login(user_in: UserIn):
-    # {"tenantId": "b50d4bb8-e6a0-4015-afed-115f4e0d9d35"}
     try:
         response = einloggen(driver, user_in)
         return response
@@ -82,11 +81,10 @@ async def neuer_nutzer(token: CurrentUser, user_alt: UserLocal):
 
 @app.get("/api/personen", response_model=List[PersonOut])
 async def alle_personen(
-    token: CurrentUser,
-    tenant: str = Query(..., description="Kunden ID des aktuellen tenants"),
+    token: CurrentUser
 ):
     try:
-        persons = leseAllePersonen(driver, tenant)
+        persons = leseAllePersonen(driver, token["tenant"])
         return persons
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")
@@ -94,11 +92,10 @@ async def alle_personen(
 
 @app.get("/api/stammbaum", response_model=StammbaumGraph)
 async def lese_stammbaum(
-    token: CurrentUser,
-    tenant: str = Query(..., description="Kunden ID des aktuellen tenants"),
+    token: CurrentUser
 ):
     try:
-        stammbaum = findeStammbaumGraph(driver, tenant)
+        stammbaum = findeStammbaumGraph(driver, token["tenant"])
         return stammbaum
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{e}")
@@ -159,14 +156,13 @@ async def get_verbindungen(
     nachname: str = Query(..., description="Nachname der Bezugsperson"),
     geburtstag: date = Query(
         ..., description="Geburtstag der Bezugsperson im Format YYYY-MM-DD"
-    ),
-    tenant: str = Query(..., description="Kunden ID des aktuellen tenants"),
+    )
 ):
     bezugsperson_data = {
         "vorname": vorname,
         "nachname": nachname,
         "geburtstag": geburtstag,
-        "tenant": tenant,
+        "tenant": token["tenant"],
     }
     bezugsperson = PersonConnection(**bezugsperson_data)
 

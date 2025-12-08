@@ -17,8 +17,8 @@ export class ToolbarHeaderComponent implements OnInit, OnDestroy {
   constructor(private loginService: LoginService) { }
 
   ngOnInit(): void {
-    this.isLoggedInSubscription = this.loginService.tenantId$.pipe(
-      map(tenantId => !!tenantId)
+    this.isLoggedInSubscription = this.loginService.token$.pipe(
+      map(token => !!token)
     ).subscribe(loggedInStatus => {
       this.isLoggedIn = loggedInStatus;
     });

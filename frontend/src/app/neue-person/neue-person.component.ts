@@ -109,7 +109,7 @@ export class NeuePersonComponent implements OnInit, OnDestroy {
       const formValue = this.personForm.value;
       const neuePerson: PersonIn = {
         ...formValue,
-        tenant: this.loginService.getTenantId(),
+        tenant: this.loginService.getToken(),
         verbindungMit: this.verbundenePerson
           ? {
             vorname: this.verbundenePerson.vorname,

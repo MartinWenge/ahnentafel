@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToolbarHeaderModule } from './toolbar-header/toolbar-header.module';
@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { LoginService } from './services/login.service';
 import { LoginModule } from './login/login.component.module';
 import { ContactModule } from './contact/contact.component.module';
+import { AuthInterceptor } from './auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,12 @@ import { ContactModule } from './contact/contact.component.module';
     MatCardModule
   ],
   providers: [
-    LoginService
+    LoginService,
+    {
+      provide: HTTP_INTERCEPTORS, // Das Token, das Angular Interceptoren erkennt
+      useClass: AuthInterceptor,  // Die Klasse, die verwendet werden soll
+      multi: true                 // Wichtig: Erlaubt die Registrierung mehrerer Interceptoren
+    }
   ],
   bootstrap: [AppComponent]
 })

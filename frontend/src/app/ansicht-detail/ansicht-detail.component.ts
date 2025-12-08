@@ -107,9 +107,6 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
       if (this.gefundenePerson?.geburtstag) {
         parameter = parameter.set('geburtstag', String(this.gefundenePerson.geburtstag));
       }
-      if (this.gefundenePerson?.tenant) {
-        parameter = parameter.set('tenant', this.gefundenePerson.tenant);
-      }
 
       this.http.get<PersonMitVerbindungen>(this.apiConfig.apiUrl + this.apiUrlPersonZumSuchem, { params: parameter })
         .pipe(takeUntil(this.destroy$))

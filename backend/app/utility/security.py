@@ -3,12 +3,11 @@ from jose import jwt, JWTError
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from utility.settings import MySettings
 
-# --- Konfiguration (WICHTIG: Sollte aus Umgebungsvariablen geladen werden!) ---
-SECRET_KEY = "mvajjbvbsldkfjnbvjvnrjvasvx92rfqdq4" # MINDESTENS 32 Zufallszeichen
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 20
-# -------------------------------------------------------------------------------
+SECRET_KEY = MySettings.SECRET_KEY
+ALGORITHM = MySettings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = MySettings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 # Definiert das Schema, wie FastAPI das Token aus dem Header extrahiert:
 # Erwartet einen Header: Authorization: Bearer <token>

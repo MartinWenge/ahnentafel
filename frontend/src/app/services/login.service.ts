@@ -9,20 +9,16 @@ import { UserIn, UserOut } from '../models/user';
 })
 export class LoginService {
   private readonly apiUrlValidateUser = 'api/login';
-  private tenantIdSubject = new BehaviorSubject<string | null>(null);
-  tenantId$: Observable<string | null> = this.tenantIdSubject.asObservable();
+  private tokenSubject = new BehaviorSubject<string | null>(null);
+  token$: Observable<string | null> = this.tokenSubject.asObservable();
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) {
-    const storedTenantId = sessionStorage.getItem('tenantId');
-    if (storedTenantId) {
-      this.tenantIdSubject.next(storedTenantId);
+    const storedToken = sessionStorage.getItem('session_token');
+    if (storedToken) {
+      this.tokenSubject.next(storedToken);
     }
   }
 
-  /**
-   * Validiert die Nutzername und empfängt die tenantId vom Backend.
-   * @returns Ein Observable, das die tenantId enthält oder null bei Fehler.
-   */
   validateToken(username: string, password: string): Observable<{ user: UserOut } | null> {
     let user_in: UserIn = {
       username: username,
@@ -32,9 +28,9 @@ export class LoginService {
     return this.http.post<UserOut>(this.apiConfig.apiUrl + this.apiUrlValidateUser, user_in)
       .pipe(
         map(response => {
-          if (response && response.tenant) {
-            this.tenantIdSubject.next(response.tenant);
-            sessionStorage.setItem('tenantId', response.tenant);
+          if (response && response.token) {
+            this.tokenSubject.next(response.token);
+            sessionStorage.setItem('session_token', response.token);
             return { user: response };
           } else {
             return null;
@@ -49,15 +45,15 @@ export class LoginService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.tenantIdSubject.getValue();
+    return !!this.tokenSubject.getValue();
   }
 
-  getTenantId(): string | null {
-    return this.tenantIdSubject.getValue();
+  getToken(): string | null {
+    return this.tokenSubject.getValue();
   }
 
   logout(): void {
-    this.tenantIdSubject.next(null);
-    sessionStorage.removeItem('tenantId');
+    this.tokenSubject.next(null);
+    sessionStorage.removeItem('session_token');
   }
 }

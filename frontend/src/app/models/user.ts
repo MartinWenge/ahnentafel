@@ -5,5 +5,6 @@ export interface UserIn {
 
 export interface UserOut {
     username: string,
-    tenant: string
+    tenant: string,
+    token: string
 }

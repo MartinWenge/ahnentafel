@@ -215,9 +215,6 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
     if (this.gefundenePerson1?.geburtstag) {
       parameter = parameter.set('geburtstag', String(this.gefundenePerson1.geburtstag));
     }
-    if (this.gefundenePerson1?.tenant) {
-      parameter = parameter.set('tenant', this.gefundenePerson1.tenant);
-    }
     this.http.get<PersonMitVerbindungen>(this.apiConfig.apiUrl + this.apiUrlPersonZumSuchem, { params: parameter })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -397,7 +394,7 @@ export class KorrekturPersonComponent implements OnInit, OnDestroy {
     if (this.korrigierePersonForm.valid) {
       this.isLoading = true;
 
-      const tenant = this.loginService.getTenantId();
+      const tenant = this.loginService.getToken();
       const originId = this.gefundenePerson3 ? this.gefundenePerson3.id : undefined;
       const korrekturPerson: Person = {
         id: originId,

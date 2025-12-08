@@ -126,7 +126,7 @@ export class NeueVerbindungComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.neueVerbindungForm.valid) {
       this.isLoading = true;
-      const tenant = this.loginService.getTenantId();
+      const tenant = this.loginService.getToken();
       const neueVerbindung: PersonenVerbinden = {
         person1: {
           vorname: this.gefundenePerson1?.vorname,
