@@ -1,4 +1,4 @@
-<mat-card class="mat-card-display-person" [ngStyle]="{'background-color': highlightColor || ''}">
+<mat-card class="mat-card-display-person" [ngStyle]="{'background-color': highlightColor || ''}" (click)="onPersonClick()">
     <mat-card-content class="mat-card-display-person-content">
         <h3>{{ person.vorname }} {{ person.nachname }}</h3>
         <mat-list role="list">

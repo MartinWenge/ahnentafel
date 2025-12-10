@@ -149,5 +149,8 @@ export class AnsichtDetailComponent implements OnInit, OnDestroy {
 
   handlePersonClick(clickedPerson: Person): void {
     console.log(`${clickedPerson.vorname} ${clickedPerson.nachname} wurde geklickt.`);
+    this.suchePersonForm.patchValue({ gesuchtePerson: clickedPerson});
+    this.gefundenePerson = clickedPerson;
+    this.onSubmit();
   }
 }
