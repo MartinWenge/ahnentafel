@@ -158,11 +158,12 @@ async def get_verbindungen(
         ..., description="Geburtstag der Bezugsperson im Format YYYY-MM-DD"
     )
 ):
+    tenant = token["tenant"]
     bezugsperson_data = {
         "vorname": vorname,
         "nachname": nachname,
         "geburtstag": geburtstag,
-        "tenant": token["tenant"],
+        "tenant": tenant,
     }
     bezugsperson = PersonConnection(**bezugsperson_data)
 
