@@ -104,7 +104,7 @@ async def lese_stammbaum(
 @app.post("/api/neueperson")
 async def neue_person(token: CurrentUser, person_in: PersonIn):
     try:
-        response = erstelleNeuePerson(driver, person_in)
+        response = erstelleNeuePerson(driver, person_in, token["tenant"])
         return response
     except Exception as e:
         if e.status_code == 409:
@@ -116,7 +116,7 @@ async def neue_person(token: CurrentUser, person_in: PersonIn):
 @app.post("/api/neueverbindung")
 async def neue_verbindung(token: CurrentUser, persons: PersonenZumVerbinden):
     try:
-        response = erstelleNeueVerbindung(driver, persons)
+        response = erstelleNeueVerbindung(driver, persons, token["tenant"])
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {e}")

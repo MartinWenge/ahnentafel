@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from models.person import PersonenZumVerbinden
 
 
-def erstelleNeueVerbindung(driver, persons: PersonenZumVerbinden):
+def erstelleNeueVerbindung(driver, persons: PersonenZumVerbinden, tenantId):
     with driver.session() as session:
         query = """MATCH (p:person {
                             vorname: $vorname,
@@ -16,7 +16,7 @@ def erstelleNeueVerbindung(driver, persons: PersonenZumVerbinden):
             vorname=persons.person1.vorname,
             nachname=persons.person1.nachname,
             geburtstag=str(persons.person1.geburtstag),
-            tenant=persons.person1.tenant,
+            tenant=tenantId,
         )
 
         personNode1 = result.single()
