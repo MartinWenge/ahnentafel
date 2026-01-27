@@ -32,7 +32,7 @@ def erstelleNeueVerbindung(driver, persons: PersonenZumVerbinden, tenantId):
             vorname=persons.person2.vorname,
             nachname=persons.person2.nachname,
             geburtstag=str(persons.person2.geburtstag),
-            tenant=persons.person2.tenant,
+            tenant=tenantId,
         )
 
         personNode2 = result.single()
