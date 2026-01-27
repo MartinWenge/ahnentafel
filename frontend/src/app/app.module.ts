@@ -16,6 +16,7 @@ import { LoginService } from './services/login.service';
 import { LoginModule } from './login/login.component.module';
 import { ContactModule } from './contact/contact.component.module';
 import { AuthInterceptor } from './auth.interceptor';
+import { DisplayGraphModule } from './display-graph/display-graph.module';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { AuthInterceptor } from './auth.interceptor';
     UebersichtModule,
     AnsichtDetailModule,
     DisplayPersonModule,
+    DisplayGraphModule,
     LoginModule,
     ContactModule,
     MatTabsModule,

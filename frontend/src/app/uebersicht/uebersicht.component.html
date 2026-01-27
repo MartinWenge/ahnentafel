@@ -2,10 +2,10 @@
 
 <p>Hier findest du eine Übersicht aller bisher in den Stammbaum deiner Familie eingetragener Personen</p>
 
-<p>Die Maximale Generation im Stammbaum ist {{ maxGeneration$ | async }}.</p>
-
 <ul>
     <li *ngFor="let person of allePersonen">
         {{ person.nachname }}, {{ person.vorname }} ({{ person.geburtstag | date: 'dd.MM.yyyy' }})
     </li>
 </ul>
+
+<display-graph></display-graph>

@@ -1,0 +1,13 @@
+<div class="scroll-container">
+  <svg [attr.width]="svgWidth" [attr.height]="svgHeight">
+    <line *ngFor="let line of getLines()" 
+          [attr.x1]="line.x1" [attr.y1]="line.y1" 
+          [attr.x2]="line.x2" [attr.y2]="line.y2" 
+          stroke="#999" stroke-width="2" />
+
+    <g *ngFor="let p of displayPeople" [attr.transform]="'translate(' + p.x + ',' + p.y + ')'">
+      <rect [attr.width]="nodeWidth" [attr.height]="rowHeight-horizontalGap" rx="5" fill="#f0f0f0" stroke="#333" />
+      <text x="100" y="25" text-anchor="middle" font-size="12">{{ p.name }}</text>
+    </g>
+  </svg>
+</div>

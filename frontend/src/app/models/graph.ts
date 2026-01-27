@@ -1,5 +1,5 @@
 export interface stammbaumKnoten {
-    id: number;
+    id: string;
     generation: number;
     name: string;
     vorgaenger: string[];
