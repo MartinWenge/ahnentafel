@@ -20,7 +20,7 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
 
   readonly nodeWidth = 220;
   readonly rowHeight = 100;
-  readonly horizontalGap = 40;
+  readonly horizontalGap = 50;
   svgWidth: number = 800;
   svgHeight: number = 400;
 
@@ -62,7 +62,8 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
   private transformAndLayout(rawNodes: stammbaumGraph): displayPersonInGraph[] {
     const nodes: displayPersonInGraph[] = rawNodes.graph.map(graph => ({
       id: graph.id,
-      name: graph.name,
+      name: graph.name.split(',')[0],
+      birthday: graph.name.split(',')[1],
       generation: graph.generation,
       parents: graph.vorgaenger || [],
       partnerIds: graph.partner || [],
@@ -71,15 +72,30 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
     }));
 
     const generations = [...new Set(nodes.map(n => n.generation))].sort((a, b) => a - b);
+    const placedIds = new Set<string>();
 
     generations.forEach(gen => {
       const nodesInGen = nodes.filter(n => n.generation === gen);
       let currentX = 50;
 
       nodesInGen.forEach((node, index) => {
-        // Einfache Logik: Partner nacheinander platzieren
+        if (placedIds.has(node.id)) return;
+        // y- Wert: nur abhängig von generation
         node.y = (gen - Math.min(...generations)) * this.rowHeight + 50;
+        // x-Wert einfach hintereinander weg
         node.x = currentX;
+        placedIds.add(node.id);
+
+        // Partner: sofort daneben platzieren
+        node.partnerIds.forEach(pId => {
+          const partner = nodes.find(n => n.id === pId);
+          if (partner && !placedIds.has(partner.id)) {
+            currentX += this.nodeWidth + 10; // Kleinerer Abstand für Partner
+            partner.y = node.y;
+            partner.x = currentX;
+            placedIds.add(partner.id);
+          }
+        });
 
         currentX += this.nodeWidth + this.horizontalGap;
       });
@@ -97,18 +113,52 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
   // Hilfsmethode für die Linien (Eltern zu Kind)
   getLines() {
     const lines: any[] = [];
-    this.displayPeople.forEach(person => {
-      person.parents.forEach(pId => {
-        const parent = this.displayPeople.find(p => p.id === pId);
-        if (parent) {
+    const processedFamilies = new Set<string>();
+
+    this.displayPeople.forEach(child => {
+      // Eindeutiger Schlüssel für die Elternkombination (z.B. "ID1,ID2" oder nur "ID1")
+      const parentIds = child.parents.sort().join(',');
+      if (!parentIds) return;
+
+      if (!processedFamilies.has(parentIds)) {
+        const parents = child.parents
+          .map(id => this.displayPeople.find(p => p.id === id))
+          .filter(p => !!p) as displayPersonInGraph[];
+
+        const childrenOfThisCouple = this.displayPeople.filter(
+          p => p.parents.sort().join(',') === parentIds
+        );
+
+        // --- BERECHNUNG DES ANKERPUNKTS ---
+        // X ist der Durchschnitt der Eltern-Mitten
+        const avgParentX = parents.reduce((sum, p) => sum + p.x, 0) / parents.length + this.nodeWidth / 2;
+        // Y liegt genau zwischen der Eltern-Ebene und der Kinder-Ebene (z.B. 30px unter Eltern)
+        const anchorY = parents[0].y + 40 + 20;
+
+        // 1. Linien von allen Eltern zum Ankerpunkt
+        parents.forEach(p => {
           lines.push({
-            x1: parent.x + this.nodeWidth / 2,
-            y1: parent.y + 40, // Unterkante Eltern
-            x2: person.x + this.nodeWidth / 2,
-            y2: person.y // Oberkante Kind
+            x1: p.x + this.nodeWidth / 2,
+            y1: p.y + 40,
+            x2: avgParentX,
+            y2: anchorY,
+            type: 'parent-link'
           });
-        }
-      });
+        });
+
+        // 2. Linien vom Ankerpunkt zu allen Kindern
+        childrenOfThisCouple.forEach(c => {
+          lines.push({
+            x1: avgParentX,
+            y1: anchorY,
+            x2: c.x + this.nodeWidth / 2,
+            y2: c.y,
+            type: 'child-link'
+          });
+        });
+
+        processedFamilies.add(parentIds);
+      }
     });
     return lines;
   }
