@@ -23,6 +23,8 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
   readonly horizontalGap = 50;
   svgWidth: number = 800;
   svgHeight: number = 400;
+  colors: string[] = ['#000080','#6B8E23', '#B22222', '#663399', '#4682B4', '#D2691E'];
+  idx: number = 0;
 
   ngOnInit(): void {
     this.stammbaumGraph$ = this.stammbaumBereitstellenService.getStammbaum();
@@ -34,7 +36,6 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
         this.displayPeople = layoutedData;
       });
     }
-
   }
 
   ngOnDestroy(): void {
@@ -59,11 +60,23 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
     )
   }
 
+  private getColor():string{
+    let color: string = this.colors[this.idx%(this.colors.length)];
+    return color;
+  }
+
+  private convertDate(date:string):string{
+    if(!date)
+      return '';
+    let dateArray = date.split('-');
+    return `${dateArray[2].trim()}.${dateArray[1].trim()}.${dateArray[0].trim()}`;
+  }
+
   private transformAndLayout(rawNodes: stammbaumGraph): displayPersonInGraph[] {
     const nodes: displayPersonInGraph[] = rawNodes.graph.map(graph => ({
       id: graph.id,
       name: graph.name.split(',')[0],
-      birthday: graph.name.split(',')[1],
+      birthday: this.convertDate(graph.name.split(',')[1]),
       generation: graph.generation,
       parents: graph.vorgaenger || [],
       partnerIds: graph.partner || [],
@@ -142,7 +155,8 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
             y1: p.y + 40,
             x2: avgParentX,
             y2: anchorY,
-            type: 'parent-link'
+            type: 'parent-link',
+            color: this.getColor()
           });
         });
 
@@ -153,9 +167,11 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
             y1: anchorY,
             x2: c.x + this.nodeWidth / 2,
             y2: c.y,
-            type: 'child-link'
+            type: 'child-link',
+            color: this.getColor()
           });
         });
+        this.idx = this.idx + 1;
 
         processedFamilies.add(parentIds);
       }
