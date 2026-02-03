@@ -1,4 +1,7 @@
 <app-toolbar-header (navigateToPage)="handleNavigation($event)"></app-toolbar-header>
+<div *ngIf="isLoggedIn">
+    <app-login-header></app-login-header>
+</div>
 
 <div class="body-container">
     <div *ngIf="currentPage === 'start'">

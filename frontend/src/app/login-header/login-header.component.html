@@ -1,0 +1,23 @@
+<mat-toolbar color="secondary">
+    <button mat-button (click)="neuEinloggen()">
+        Neu einloggen <mat-icon>replay</mat-icon>
+    </button>
+
+    <span class="spacer"></span>
+
+    @if (loginService.prozentSessionZeit$ | async; as prozentSession){
+    @if (prozentSession <= 100 && prozentSession> 1){
+        <div class="progress-container">
+            <mat-progress-bar mode="determinate" [value]="prozentSession"
+                [color]="prozentSession < 20 ? 'warn' : 'primary'"></mat-progress-bar>
+        </div>
+        <button mat-button>
+            Verbleibende Session Zeit: {{ loginService.minutenSessionZeit$ |async }} min <mat-icon>av_timer</mat-icon>
+        </button>
+        } @else {
+        <button mat-button>
+            Session abgelaufen <mat-icon>announcement</mat-icon>
+        </button>
+        }
+    }
+</mat-toolbar>

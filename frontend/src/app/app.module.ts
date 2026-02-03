@@ -17,6 +17,7 @@ import { LoginModule } from './login/login.component.module';
 import { ContactModule } from './contact/contact.component.module';
 import { AuthInterceptor } from './auth.interceptor';
 import { DisplayGraphModule } from './display-graph/display-graph.module';
+import { LoginHeaderModule } from './login-header/login-header.module';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { DisplayGraphModule } from './display-graph/display-graph.module';
     AppRoutingModule,
     HttpClientModule,
     ToolbarHeaderModule,
+    LoginHeaderModule,
     NeuePersonModule,
     NeueVerbindungModule,
     KorrekturPersonModule,
