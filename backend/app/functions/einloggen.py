@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from models.user import UserIn, UserOut, Hasher
 from utility.security import create_access_token
+from time import time
 
 
 def einloggen(driver, user: UserIn):
@@ -15,7 +16,7 @@ def einloggen(driver, user: UserIn):
 
         if Hasher.verify_password(user.password, db_user_pw):
             tenantDB = dict_db_user["tenant"]
-            access_token = create_access_token(data={"tenant": tenantDB})
+            access_token = create_access_token(data={"tenant": tenantDB,"iat": int(time())})
             validated_user = UserOut(
                 username=dict_db_user["username"], tenant=tenantDB, token=access_token
             )
