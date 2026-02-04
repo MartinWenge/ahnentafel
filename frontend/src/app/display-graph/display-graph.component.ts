@@ -16,7 +16,6 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
   maxGeneration$!: Observable<number> | null;
   private destroy$ = new Subject<void>();
 
-  constructor(private stammbaumBereitstellenService: StammbaumBereitstellenService) { }
 
   readonly nodeWidth = 220;
   readonly rowHeight = 100;
@@ -25,6 +24,9 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
   svgHeight: number = 400;
   colors: string[] = ['#000080','#6B8E23', '#B22222', '#663399', '#4682B4', '#D2691E'];
   idx: number = 0;
+  lines: any[] = [];
+
+  constructor(private stammbaumBereitstellenService: StammbaumBereitstellenService) { }
 
   ngOnInit(): void {
     this.stammbaumGraph$ = this.stammbaumBereitstellenService.getStammbaum();
@@ -34,6 +36,7 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
         map(data => this.transformAndLayout(data))
       ).subscribe(layoutedData => {
         this.displayPeople = layoutedData;
+        this.getLines();
       });
     }
   }
@@ -176,6 +179,6 @@ export class DisplayGraphComponent implements OnInit, OnDestroy {
         processedFamilies.add(parentIds);
       }
     });
-    return lines;
+    this.lines = lines;
   }
 }
